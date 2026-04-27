@@ -1,0 +1,8 @@
+{
+  "name": "pibg-order-system",
+  "version": "1.0.0",
+  "description": "Sistem Pesanan Baju PIBG 2026",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}
