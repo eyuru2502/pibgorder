@@ -118,6 +118,68 @@
   }
   .sort-select:focus { border-color: var(--green-bright); }
 
+  .manual-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px;
+    margin-bottom: 18px;
+  }
+  .manual-card h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--green-dark);
+    margin-bottom: 6px;
+  }
+  .manual-card p {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 14px;
+  }
+  .manual-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .manual-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .manual-field.full { grid-column: 1 / -1; }
+  .manual-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .manual-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #cde8d8;
+    border-radius: 10px;
+    font-family: 'Poppins';
+    font-size: 13px;
+    background: white;
+    outline: none;
+  }
+  .manual-input:focus { border-color: var(--green-bright); }
+  .manual-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+  .manual-summary {
+    background: var(--green-pale);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: var(--text-mid);
+    margin-top: 12px;
+  }
+
   /* Orders wrapper */
   .orders-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
   .orders-card-header {
@@ -161,6 +223,8 @@
   .badge-mus  { background: #ffe8ee; color: #a02050; }
   .badge-paid   { background: #d4edda; color: #155724; }
   .badge-unpaid { background: #f8d7da; color: #721c24; }
+  .badge-sent { background: #e6f2ff; color: #155a96; }
+  .badge-remind { background: #fff3d9; color: #8a5a00; }
 
   /* Buttons */
   .btn {
@@ -303,7 +367,7 @@
       </div>
     </div>
 
-<div class="filter-bar">
+    <div class="filter-bar">
       <input class="search-input" id="search-box" type="text" placeholder="🔍 Cari nama / telefon..." oninput="renderOrders()">
       <select class="sort-select" id="sort-order" onchange="renderOrders()">
         <option value="newest">Tarikh Terkini</option>
@@ -318,6 +382,63 @@
       <button class="filter-btn" onclick="setFilter('RNLS',this)">RNLS</button>
       <button class="filter-btn" onclick="setFilter('RNSS',this)">RNSS</button>
       <button class="filter-btn" onclick="setFilter('Muslimah',this)">Muslimah</button>
+    </div>
+
+    <div class="manual-card">
+      <h3>➕ Tambah Pesanan Manual</h3>
+      <p>Gunakan borang ini jika admin mahu memasukkan pesanan terus tanpa melalui borang pelanggan.</p>
+      <div class="manual-grid">
+        <div class="manual-field full">
+          <label class="manual-label">Nama</label>
+          <input class="manual-input" id="m-nama" type="text" placeholder="Nama pelanggan">
+        </div>
+        <div class="manual-field">
+          <label class="manual-label">No. Telefon</label>
+          <input class="manual-input" id="m-telefon" type="text" placeholder="Contoh: 60123456789">
+        </div>
+        <div class="manual-field">
+          <label class="manual-label">Status Bayaran</label>
+          <select class="manual-input" id="m-status">
+            <option value="belum">Belum Bayar</option>
+            <option value="diterima">Sudah Bayar</option>
+          </select>
+        </div>
+        <div class="manual-field">
+          <label class="manual-label">Jenis Baju</label>
+          <select class="manual-input" id="m-jenis" onchange="updateManualTotal()">
+            <option value="CSS">CSS</option>
+            <option value="RNLS">RNLS</option>
+            <option value="RNSS">RNSS</option>
+            <option value="Muslimah">Muslimah</option>
+          </select>
+        </div>
+        <div class="manual-field">
+          <label class="manual-label">Saiz</label>
+          <select class="manual-input" id="m-saiz">
+            <option value="XS">XS</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+            <option value="XXL">XXL</option>
+            <option value="3XL">3XL</option>
+            <option value="4XL">4XL</option>
+          </select>
+        </div>
+        <div class="manual-field">
+          <label class="manual-label">Kuantiti</label>
+          <input class="manual-input" id="m-qty" type="number" min="1" value="1" oninput="updateManualTotal()">
+        </div>
+        <div class="manual-field full">
+          <label class="manual-label">Catatan</label>
+          <input class="manual-input" id="m-catatan" type="text" placeholder="Pilihan, contoh: tempahan walk-in">
+        </div>
+      </div>
+      <div class="manual-summary" id="manual-summary">Jumlah semasa: <strong>RM 45</strong></div>
+      <div class="manual-actions">
+        <button class="btn btn-save" onclick="submitManualOrder()">💾 Simpan Pesanan</button>
+        <button class="btn btn-cancel" onclick="resetManualOrder()">↺ Reset</button>
+      </div>
     </div>
 
     <div class="orders-card">
@@ -339,6 +460,7 @@
   const AUTH_KEY = 'pibg_admin_token';
   const SAIZ  = ['XS','S','M','L','XL','XXL','3XL'];
   const JENIS = ['CSS','RNLS','RNSS','Muslimah'];
+  const PRICE_MAP = { CSS: 45, RNLS: 47, RNSS: 44, Muslimah: 50 };
   const badgeCls = j => ({ CSS:'badge-css', RNLS:'badge-rnls', RNSS:'badge-rnss', Muslimah:'badge-mus' }[j] || '');
 
   let allOrders    = [];
@@ -380,6 +502,7 @@
   function showDashboard() {
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('dashboard-page').style.display = 'block';
+    updateManualTotal();
     loadOrders();
   }
 
@@ -472,6 +595,70 @@
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
     renderOrders();
+  }
+
+  function updateManualTotal() {
+    const jenis = document.getElementById('m-jenis')?.value || 'CSS';
+    const qty = Math.max(1, parseInt(document.getElementById('m-qty')?.value || '1', 10) || 1);
+    const total = (PRICE_MAP[jenis] || 0) * qty;
+    const summary = document.getElementById('manual-summary');
+    if (summary) summary.innerHTML = `Jumlah semasa: <strong>RM ${total}</strong>`;
+  }
+
+  function resetManualOrder() {
+    document.getElementById('m-nama').value = '';
+    document.getElementById('m-telefon').value = '';
+    document.getElementById('m-status').value = 'belum';
+    document.getElementById('m-jenis').value = 'CSS';
+    document.getElementById('m-saiz').value = 'XS';
+    document.getElementById('m-qty').value = '1';
+    document.getElementById('m-catatan').value = '';
+    updateManualTotal();
+  }
+
+  async function submitManualOrder() {
+    const nama = document.getElementById('m-nama').value.trim();
+    const telefon = document.getElementById('m-telefon').value.trim();
+    const jenis = document.getElementById('m-jenis').value;
+    const saiz = document.getElementById('m-saiz').value;
+    const kuantiti = Math.max(1, parseInt(document.getElementById('m-qty').value || '1', 10) || 1);
+    const status_bayaran = document.getElementById('m-status').value;
+    const catatan = document.getElementById('m-catatan').value.trim();
+    const harga = PRICE_MAP[jenis] || 0;
+    const jumlah = harga * kuantiti;
+
+    if (!nama || !telefon) {
+      alert('Nama dan nombor telefon perlu diisi.');
+      return;
+    }
+
+    const order = {
+      nama,
+      telefon,
+      jenis,
+      saiz,
+      kuantiti,
+      harga,
+      jumlah,
+      tarikh: new Date().toLocaleString('ms-MY', { timeZone: 'Asia/Kuala_Lumpur' }),
+      status_bayaran,
+      catatan: catatan || 'Ditambah secara manual oleh admin',
+      createdSource: 'admin-manual'
+    };
+
+    const res = await fetch('/.netlify/functions/order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(order),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      alert('Gagal menambah pesanan: ' + (data.error || 'Cuba semula.'));
+      return;
+    }
+
+    resetManualOrder();
+    await loadOrders();
   }
 
   function sortOrders(list) {
@@ -592,6 +779,8 @@
                 onclick="toggleStatus('${eid}','${o.status_bayaran||'belum'}')">
                 ${isPaid?'✓ Sudah Bayar':'✗ Belum Bayar'}
               </span>
+              ${o.lastConfirmSentAt ? `<span class="badge badge-sent">✓ Pengesahan Dihantar</span>` : ''}
+              ${o.lastReminderSentAt ? `<span class="badge badge-remind">⏰ Peringatan Dihantar</span>` : ''}
             </div>
           </div>
           <div class="card-row2">
@@ -599,6 +788,8 @@
             <span>🎽 ${esc(o.jenis)} · Saiz <strong>${esc(o.saiz)}</strong> × <strong>${o.kuantiti||1}</strong></span>
             <span>💰 <strong>RM ${o.jumlah||0}</strong></span>
             <span>📅 ${esc(o.tarikh||'—')}</span>
+            ${o.lastConfirmSentAt ? `<span>📨 Pengesahan: ${esc(o.lastConfirmSentAt)}</span>` : ''}
+            ${o.lastReminderSentAt ? `<span>🔔 Peringatan: ${esc(o.lastReminderSentAt)}</span>` : ''}
           </div>
           <div class="card-actions">
             <button class="btn btn-wa"   onclick="openWA('${eid}','bayar')">💰 Sahkan Bayaran</button>
@@ -642,6 +833,39 @@
       ? `Salam Sejahtera dan Salam Onsoi ${o.nama},\n\n✅ Bayaran baju PIBG anda telah *DITERIMA*.\n\n🎽 ${det}\n\nTerima kasih! 🙏 — Admin PIBG SK Kiandongo`
       : `Salam Sejahtera dan Salam Onsoi ${o.nama},\n\n⏳ Peringatan: Bayaran baju PIBG anda *BELUM DITERIMA*.\n\n🎽 ${det}\n\nSila buat bayaran melalui QR Maybank sebelum 8 Mei 2026. TQ 🙏`;
     window.open('https://wa.me/'+wa+'?text='+encodeURIComponent(msg), '_blank');
+    markNotificationSent(o, jenis);
+  }
+
+  async function markNotificationSent(order, jenis) {
+    const stamp = new Date().toLocaleString('ms-MY', { timeZone: 'Asia/Kuala_Lumpur' });
+    const payload = jenis === 'bayar'
+      ? { lastConfirmSentAt: stamp, lastNotificationType: 'pengesahan' }
+      : { lastReminderSentAt: stamp, lastNotificationType: 'peringatan' };
+
+    const res = await fetch('/.netlify/functions/order-update', {
+      method: 'PATCH',
+      headers: { 'Content-Type':'application/json', Authorization:`Bearer ${sessionStorage.getItem(AUTH_KEY)}` },
+      body: JSON.stringify({
+        id: order.id,
+        fingerprint: order.fingerprint || '',
+        original: {
+          nama: order.nama || '',
+          telefon: order.telefon || '',
+          jenis: order.jenis || '',
+          saiz: order.saiz || '',
+          kuantiti: order.kuantiti || 1,
+          jumlah: order.jumlah || 0,
+          tarikh: order.tarikh || '',
+          status_bayaran: order.status_bayaran || '',
+        },
+        ...payload
+      }),
+    });
+
+    if (res.ok) {
+      Object.assign(order, payload);
+      renderOrders();
+    }
   }
 
   // === EDIT ===
