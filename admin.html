@@ -576,8 +576,7 @@ Sila buat bayaran melalui QR Maybank sebelum 8 Mei 2026. TQ 🙏`;
       [i+1, o.nama, o.telefon, o.jenis, o.saiz, o.kuantiti, o.jumlah, o.tarikh,
        o.status_bayaran === 'diterima' ? 'Sudah Bayar' : 'Belum Bayar'].map(csvCell).join(',')
     );
-    const csv  = [headers.join(','), ...rows].join('
-');
+    const csv  = [headers.join(','), ...rows].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const a    = document.createElement('a');
     a.href     = URL.createObjectURL(blob);
