@@ -12,8 +12,6 @@
     --green-bright: #3cb96b;
     --green-light: #a8e6bf;
     --green-pale: #e8f7ee;
-    --gold: #f5c842;
-    --white: #ffffff;
     --gray-soft: #f4f9f6;
     --text-dark: #0d2b18;
     --text-mid: #2d5a3d;
@@ -25,50 +23,31 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Poppins', sans-serif; background: var(--gray-soft); min-height: 100vh; color: var(--text-dark); }
 
-  /* ===== LOGIN PAGE ===== */
+  /* ===== LOGIN ===== */
   #login-page {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
-    padding: 24px;
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--green-dark), var(--green-mid)); padding: 24px;
   }
   .login-card {
-    background: white;
-    border-radius: 24px;
-    padding: 40px 32px;
-    width: 100%;
-    max-width: 380px;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.2);
-    text-align: center;
-    animation: slideUp 0.5s cubic-bezier(.4,2,.6,1) both;
+    background: white; border-radius: 24px; padding: 40px 32px;
+    width: 100%; max-width: 380px; box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+    text-align: center; animation: slideUp 0.5s cubic-bezier(.4,2,.6,1) both;
   }
   @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   .login-logo {
     width: 72px; height: 72px;
     background: linear-gradient(135deg, var(--green-mid), var(--green-bright));
-    border-radius: 20px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 32px;
-    margin: 0 auto 16px;
+    border-radius: 20px; display: flex; align-items: center; justify-content: center;
+    font-size: 32px; margin: 0 auto 16px;
   }
-  .login-card h2 {
-    font-family: 'Baloo 2', cursive;
-    font-size: 22px; font-weight: 800;
-    color: var(--green-dark);
-    margin-bottom: 4px;
-  }
-  .login-card p { font-size: 13px; color: var(--text-light); margin-bottom: 28px; }
+  .login-card h2 { font-family: 'Baloo 2', cursive; font-size: 22px; font-weight: 800; color: var(--green-dark); margin-bottom: 4px; }
+  .login-card > p { font-size: 13px; color: var(--text-light); margin-bottom: 28px; }
   .form-group { margin-bottom: 16px; text-align: left; }
   .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-mid); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
   .form-input {
-    width: 100%; padding: 12px 14px;
-    border: 2px solid #e0edea;
-    border-radius: 10px;
+    width: 100%; padding: 12px 14px; border: 2px solid #e0edea; border-radius: 10px;
     font-family: 'Poppins'; font-size: 14px; color: var(--text-dark);
-    background: var(--gray-soft); outline: none;
-    transition: border-color 0.2s;
+    background: var(--gray-soft); outline: none; transition: border-color 0.2s;
   }
   .form-input:focus { border-color: var(--green-bright); background: white; }
   .login-btn {
@@ -87,13 +66,9 @@
   #dashboard-page { display: none; }
   .dash-header {
     background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
-    padding: 20px 24px;
-    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 24px; display: flex; align-items: center; justify-content: space-between;
   }
-  .dash-header h1 {
-    font-family: 'Baloo 2', cursive;
-    font-size: 20px; font-weight: 800; color: white;
-  }
+  .dash-header h1 { font-family: 'Baloo 2', cursive; font-size: 20px; font-weight: 800; color: white; }
   .dash-header p { font-size: 12px; color: rgba(255,255,255,0.7); }
   .logout-btn {
     background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
@@ -103,78 +78,112 @@
   }
   .logout-btn:hover { background: rgba(255,255,255,0.25); }
 
-  .dash-body { padding: 20px 16px; max-width: 900px; margin: 0 auto; }
+  .dash-body { padding: 20px 16px; max-width: 680px; margin: 0 auto; }
 
+  /* Stats */
   .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-  @media (min-width: 600px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
-  @media (min-width: 900px) { .stats-grid { grid-template-columns: repeat(6, 1fr); } }
-  .stat-card {
-    background: white; border-radius: var(--radius); padding: 16px;
-    box-shadow: var(--shadow); text-align: center;
-  }
-  .stat-card .stat-val {
-    font-family: 'Baloo 2', cursive; font-size: 28px; font-weight: 800;
-    color: var(--green-dark); line-height: 1;
-  }
-  .stat-card .stat-label { font-size: 11px; color: var(--text-light); margin-top: 4px; font-weight: 500; }
-  .stat-card .stat-sub { font-size: 13px; font-weight: 600; color: var(--green-mid); margin-top: 2px; }
+  @media (min-width: 480px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 700px) { .stats-grid { grid-template-columns: repeat(6, 1fr); } }
+  .stat-card { background: white; border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); text-align: center; }
+  .stat-card .stat-val { font-family: 'Baloo 2', cursive; font-size: 26px; font-weight: 800; color: var(--green-dark); line-height: 1; }
+  .stat-card .stat-label { font-size: 10px; color: var(--text-light); margin-top: 4px; font-weight: 500; }
+  .stat-card .stat-sub { font-size: 11px; font-weight: 600; color: var(--green-mid); margin-top: 2px; }
 
-  .filter-bar {
-    display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
-  }
+  /* Filter */
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
   .filter-btn {
-    padding: 8px 16px; border-radius: 999px; border: 2px solid #e0edea;
+    padding: 7px 14px; border-radius: 999px; border: 2px solid #e0edea;
     background: white; font-family: 'Poppins'; font-size: 12px; font-weight: 600;
     color: var(--text-mid); cursor: pointer; transition: all 0.2s;
   }
-  .filter-btn.active, .filter-btn:hover {
-    background: var(--green-bright); border-color: var(--green-bright); color: white;
-  }
+  .filter-btn.active, .filter-btn:hover { background: var(--green-bright); border-color: var(--green-bright); color: white; }
   .search-input {
-    flex: 1; min-width: 160px; padding: 8px 14px;
+    flex: 1; min-width: 140px; padding: 7px 14px;
     border: 2px solid #e0edea; border-radius: 999px;
-    font-family: 'Poppins'; font-size: 13px; outline: none;
-    transition: border-color 0.2s;
+    font-family: 'Poppins'; font-size: 13px; outline: none; transition: border-color 0.2s;
   }
   .search-input:focus { border-color: var(--green-bright); }
 
+  /* Orders wrapper */
   .orders-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
   .orders-card-header {
-    padding: 16px 20px;
-    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;
     border-bottom: 1px solid var(--green-pale);
   }
-  .orders-card-header h3 { font-size: 15px; font-weight: 700; color: var(--green-dark); }
+  .orders-card-header h3 { font-size: 14px; font-weight: 700; color: var(--green-dark); }
   .export-btn {
-    padding: 7px 14px; background: var(--green-pale); border: none;
+    padding: 6px 12px; background: var(--green-pale); border: none;
     border-radius: 8px; font-family: 'Poppins'; font-size: 12px; font-weight: 600;
     color: var(--green-dark); cursor: pointer; transition: background 0.2s;
   }
   .export-btn:hover { background: var(--green-light); }
 
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead th {
-    padding: 10px 14px; text-align: left;
-    font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.5px; color: var(--text-light);
-    background: var(--gray-soft); border-bottom: 1px solid #e0edea;
+  /* ===== ORDER CARDS ===== */
+  .order-list { display: flex; flex-direction: column; }
+  .order-card { border-bottom: 1px solid var(--green-pale); }
+  .order-card:last-child { border-bottom: none; }
+
+  /* View mode */
+  .card-view { padding: 14px 16px; }
+  .card-row1 {
+    display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;
   }
-  tbody tr { transition: background 0.15s; }
-  tbody tr:hover { background: var(--green-pale); }
-  tbody td { padding: 12px 14px; border-bottom: 1px solid #f0f8f4; color: var(--text-dark); vertical-align: middle; }
-  .badge {
-    display: inline-block; padding: 3px 10px; border-radius: 999px;
-    font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+  .card-num { font-size: 11px; font-weight: 700; color: var(--text-light); padding-top: 3px; min-width: 20px; }
+  .card-name { font-size: 15px; font-weight: 700; color: var(--text-dark); flex: 1; min-width: 120px; }
+  .card-badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .card-row2 {
+    display: flex; flex-wrap: wrap; column-gap: 14px; row-gap: 4px;
+    margin-bottom: 10px; font-size: 13px; color: var(--text-mid); padding-left: 28px;
   }
-  .badge-css { background: #dff0ff; color: #1a6faa; }
+  .card-row2 strong { color: var(--text-dark); }
+  .card-actions { display: flex; gap: 6px; flex-wrap: wrap; padding-left: 28px; }
+
+  /* Badges */
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .badge-css  { background: #dff0ff; color: #1a6faa; }
   .badge-rnls { background: #fff0d9; color: #a06010; }
   .badge-rnss { background: #f0e8ff; color: #5a2da0; }
-  .badge-mus { background: #ffe8ee; color: #a02050; }
+  .badge-mus  { background: #ffe8ee; color: #a02050; }
+  .badge-paid   { background: #d4edda; color: #155724; }
+  .badge-unpaid { background: #f8d7da; color: #721c24; }
 
+  /* Buttons */
+  .btn {
+    padding: 6px 12px; border: none; border-radius: 8px;
+    font-family: 'Poppins'; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .btn-wa   { background: #25d366; color: white; }
+  .btn-wa:hover { background: #128c7e; }
+  .btn-war  { background: #34b7f1; color: white; }
+  .btn-war:hover { background: #0077b6; }
+  .btn-edit { background: var(--green-pale); color: var(--green-dark); }
+  .btn-edit:hover { background: var(--green-light); }
+  .btn-del  { background: #fde8e8; color: var(--danger); }
+  .btn-del:hover  { background: #fcc; }
+  .btn-save { background: var(--green-bright); color: white; }
+  .btn-save:hover { background: var(--green-mid); }
+  .btn-cancel { background: #e9ecef; color: #495057; }
+  .btn-cancel:hover { background: #dee2e6; }
+
+  /* Edit mode */
+  .card-edit { padding: 16px; background: #fffde7; border-top: 2px solid #ffe082; }
+  .edit-title { font-size: 13px; font-weight: 700; color: var(--green-dark); margin-bottom: 14px; }
+  .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .edit-full { grid-column: 1 / -1; }
+  .edit-field { display: flex; flex-direction: column; gap: 4px; }
+  .edit-label { font-size: 11px; font-weight: 600; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.3px; }
+  .edit-input {
+    padding: 8px 10px; border: 1.5px solid #cde8d8; border-radius: 8px;
+    font-family: 'Poppins'; font-size: 13px; background: white; outline: none;
+    transition: border-color 0.15s; width: 100%;
+  }
+  .edit-input:focus { border-color: var(--green-bright); }
+  .edit-actions { display: flex; gap: 8px; }
+
+  /* Loading / empty */
   .empty-state { padding: 48px; text-align: center; color: var(--text-light); }
   .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
-
   .loading { padding: 48px; text-align: center; color: var(--text-light); }
   .spinner {
     width: 32px; height: 32px; border: 3px solid var(--green-pale);
@@ -183,28 +192,42 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* Payment status badges */
-  .badge-paid { background:#d4edda; color:#155724; }
-  .badge-unpaid { background:#f8d7da; color:#721c24; }
-
-  /* Action buttons */
-  .btn-act { display:block; width:100%; padding:5px 8px; border:none; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer; font-family:'Poppins'; transition:all 0.15s; margin-bottom:3px; text-align:center; white-space:nowrap; }
-  .btn-wa { background:#25d366; color:white; }
-  .btn-wa:hover { background:#128c7e; }
-  .btn-wa-r { background:#34b7f1; color:white; }
-  .btn-wa-r:hover { background:#0077b6; }
-  .btn-edit { background:var(--green-pale); color:var(--green-dark); }
-  .btn-edit:hover { background:var(--green-light); }
-  .btn-save { background:var(--green-bright); color:white; }
-  .btn-save:hover { background:var(--green-mid); }
-  .btn-cancel { background:#e9ecef; color:#495057; }
-  .btn-cancel:hover { background:#dee2e6; }
-
-  /* Inline edit inputs */
-  .edit-input { width:100%; padding:4px 8px; border:1.5px solid var(--green-bright); border-radius:6px; font-family:'Poppins'; font-size:12px; background:white; box-sizing:border-box; }
+  /* Confirm dialog */
+  .confirm-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center; z-index: 999; padding: 20px;
+  }
+  .confirm-box {
+    background: white; border-radius: 18px; padding: 28px 24px;
+    max-width: 320px; width: 100%; text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  }
+  .confirm-icon { font-size: 44px; margin-bottom: 12px; }
+  .confirm-box h3 { font-size: 17px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+  .confirm-box p { font-size: 13px; color: var(--text-mid); margin-bottom: 22px; line-height: 1.5; }
+  .confirm-btns { display: flex; gap: 10px; justify-content: center; }
+  .btn-danger {
+    background: var(--danger); color: white; padding: 10px 24px;
+    border: none; border-radius: 10px; font-family: 'Poppins';
+    font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s;
+  }
+  .btn-danger:hover { background: #c0392b; }
 </style>
 </head>
 <body>
+
+<!-- CONFIRM DELETE DIALOG -->
+<div id="confirm-overlay" class="confirm-overlay" style="display:none" onclick="if(event.target===this)closeConfirm()">
+  <div class="confirm-box">
+    <div class="confirm-icon">🗑️</div>
+    <h3>Padam Pesanan?</h3>
+    <p id="confirm-msg">Tindakan ini tidak boleh dibatalkan.</p>
+    <div class="confirm-btns">
+      <button class="btn btn-cancel" style="padding:10px 20px" onclick="closeConfirm()">Batal</button>
+      <button class="btn-danger" id="confirm-ok">Ya, Padam</button>
+    </div>
+  </div>
+</div>
 
 <!-- LOGIN -->
 <div id="login-page">
@@ -237,7 +260,6 @@
   </div>
 
   <div class="dash-body">
-    <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-val" id="stat-total">—</div>
@@ -249,26 +271,25 @@
       </div>
       <div class="stat-card">
         <div class="stat-val" id="stat-rev">—</div>
-        <div class="stat-label">Jumlah Kutipan (RM)</div>
+        <div class="stat-label">Kutipan (RM)</div>
       </div>
       <div class="stat-card">
         <div class="stat-val" id="stat-pending">—</div>
         <div class="stat-label">Hari Berbaki</div>
-        <div class="stat-sub">Tutup 8 Mei 2026</div>
+        <div class="stat-sub">Tutup 8 Mei</div>
       </div>
       <div class="stat-card">
         <div class="stat-val" id="stat-bil-bayar">—</div>
         <div class="stat-label">Sudah Bayar</div>
       </div>
       <div class="stat-card" style="border:2px solid var(--green-bright)">
-        <div class="stat-val" id="stat-bayaran" style="font-size:20px">—</div>
-        <div class="stat-label">Bayaran Diterima (RM)</div>
+        <div class="stat-val" id="stat-bayaran" style="font-size:18px">—</div>
+        <div class="stat-label">Bayaran Diterima</div>
       </div>
     </div>
 
-    <!-- Filter + Search -->
     <div class="filter-bar">
-      <input class="search-input" id="search-box" type="text" placeholder="🔍 Cari nama atau telefon..." oninput="renderTable()">
+      <input class="search-input" id="search-box" type="text" placeholder="🔍 Cari nama / telefon..." oninput="renderOrders()">
       <button class="filter-btn active" onclick="setFilter('all',this)">Semua</button>
       <button class="filter-btn" onclick="setFilter('CSS',this)">CSS</button>
       <button class="filter-btn" onclick="setFilter('RNLS',this)">RNLS</button>
@@ -276,13 +297,12 @@
       <button class="filter-btn" onclick="setFilter('Muslimah',this)">Muslimah</button>
     </div>
 
-    <!-- Table -->
     <div class="orders-card">
       <div class="orders-card-header">
         <h3>📋 Senarai Pesanan</h3>
         <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
       </div>
-      <div id="table-container">
+      <div id="orders-container">
         <div class="loading"><div class="spinner"></div>Memuatkan data...</div>
       </div>
     </div>
@@ -290,26 +310,38 @@
 </div>
 
 <script>
-  // === AUTH ===
   const AUTH_KEY = 'pibg_admin_token';
+  const SAIZ  = ['XS','S','M','L','XL','XXL','3XL'];
+  const JENIS = ['CSS','RNLS','RNSS','Muslimah'];
+  const badgeCls = j => ({ CSS:'badge-css', RNLS:'badge-rnls', RNSS:'badge-rnss', Muslimah:'badge-mus' }[j] || '');
 
+  let allOrders    = [];
+  let currentFilter = 'all';
+  let editingId    = null;
+  let pendingDeleteId = null;
+
+  // === AUTH ===
   async function doLogin() {
     const u = document.getElementById('username').value.trim();
     const p = document.getElementById('password').value;
-    if (!u || !p) return showLoginError();
+    if (!u || !p) return showLoginErr();
     try {
       const res = await fetch('/.netlify/functions/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: u, password: p }),
       });
-      if (!res.ok) return showLoginError();
+      if (!res.ok) return showLoginErr();
       const data = await res.json();
       sessionStorage.setItem(AUTH_KEY, data.token);
-      showDashboard(false);
+      showDashboard();
     } catch {
-      showLoginError();
+      showLoginErr();
     }
+  }
+
+  function showLoginErr() {
+    document.getElementById('login-err').style.display = 'block';
   }
 
   function doLogout() {
@@ -318,71 +350,53 @@
     document.getElementById('login-page').style.display = 'flex';
   }
 
-  function showLoginError() {
-    document.getElementById('login-err').style.display = 'block';
-  }
-
-  function showDashboard(load = true) {
+  function showDashboard() {
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('dashboard-page').style.display = 'block';
-    if (load) loadOrders();
+    loadOrders();
   }
 
   if (sessionStorage.getItem(AUTH_KEY)) showDashboard();
 
-  // === STATE ===
-  let allOrders = [];
-  let currentFilter = 'all';
-  let editingId = null;
-
   // === DATA ===
   async function loadOrders() {
+    document.getElementById('orders-container').innerHTML =
+      '<div class="loading"><div class="spinner"></div>Memuatkan data...</div>';
     try {
       const token = sessionStorage.getItem(AUTH_KEY);
       const res = await fetch('/.netlify/functions/orders', {
         headers: { Authorization: `Bearer ${token || ''}` },
       });
-      if (res.status === 401) { showLoginError(); doLogout(); return false; }
+      if (res.status === 401) { doLogout(); return; }
       const data = await res.json();
       allOrders = data.orders || [];
       updateStats();
-      renderTable();
-      return true;
-    } catch (e) {
-      document.getElementById('table-container').innerHTML =
+      renderOrders();
+    } catch {
+      document.getElementById('orders-container').innerHTML =
         '<div class="empty-state"><div class="icon">⚠️</div><p>Gagal memuatkan data. Cuba refresh halaman.</p></div>';
-      return false;
     }
   }
 
-  function escapeHtml(value) {
-    return String(value ?? '—').replace(/[&<>"']/g, ch => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[ch]));
+  function esc(v) {
+    return String(v ?? '—').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
-  function csvCell(value) {
-    const text = String(value ?? '');
-    return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  function csvCell(v) {
+    const t = String(v ?? '');
+    return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
   }
 
   // === STATS ===
   function updateStats() {
-    const total = allOrders.length;
-    const qty   = allOrders.reduce((a, o) => a + (o.kuantiti || 0), 0);
-    const rev   = allOrders.reduce((a, o) => a + (o.jumlah || 0), 0);
-    const paidOrders = allOrders.filter(o => o.status_bayaran === 'diterima');
-    const bilBayar = paidOrders.length;
-    const bayaran  = paidOrders.reduce((a, o) => a + (o.jumlah || 0), 0);
-    const deadline = new Date('2026-05-08');
-    const today    = new Date();
-    const days     = Math.max(0, Math.ceil((deadline - today) / 86400000));
-    document.getElementById('stat-total').textContent    = total;
-    document.getElementById('stat-qty').textContent      = qty;
-    document.getElementById('stat-rev').textContent      = rev;
+    const paid = allOrders.filter(o => o.status_bayaran === 'diterima');
+    document.getElementById('stat-total').textContent    = allOrders.length;
+    document.getElementById('stat-qty').textContent      = allOrders.reduce((a,o) => a+(o.kuantiti||0), 0);
+    document.getElementById('stat-rev').textContent      = allOrders.reduce((a,o) => a+(o.jumlah||0), 0);
+    document.getElementById('stat-bil-bayar').textContent = paid.length;
+    document.getElementById('stat-bayaran').textContent  = 'RM ' + paid.reduce((a,o) => a+(o.jumlah||0), 0);
+    const days = Math.max(0, Math.ceil((new Date('2026-05-08') - new Date()) / 86400000));
     document.getElementById('stat-pending').textContent  = days;
-    document.getElementById('stat-bil-bayar').textContent = bilBayar;
-    document.getElementById('stat-bayaran').textContent  = 'RM ' + bayaran;
   }
 
   // === FILTER ===
@@ -390,197 +404,224 @@
     currentFilter = f;
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
-    renderTable();
+    renderOrders();
   }
 
-  // === RENDER TABLE ===
-  function renderTable() {
+  // === RENDER ===
+  function renderOrders() {
     const q = document.getElementById('search-box').value.toLowerCase();
     const filtered = allOrders.filter(o => {
-      const matchFilter = currentFilter === 'all' || o.jenis === currentFilter;
-      const matchSearch = !q || o.nama?.toLowerCase().includes(q) || o.telefon?.includes(q);
-      return matchFilter && matchSearch;
+      const mf = currentFilter === 'all' || o.jenis === currentFilter;
+      const ms = !q || o.nama?.toLowerCase().includes(q) || o.telefon?.includes(q);
+      return mf && ms;
     });
 
-    if (filtered.length === 0) {
-      document.getElementById('table-container').innerHTML =
+    if (!filtered.length) {
+      document.getElementById('orders-container').innerHTML =
         '<div class="empty-state"><div class="icon">📭</div><p>Tiada pesanan ditemui.</p></div>';
       return;
     }
 
-    const badgeClass = j => ({ CSS:'badge-css', RNLS:'badge-rnls', RNSS:'badge-rnss', Muslimah:'badge-mus' }[j] || '');
-    const SAIZ = ['XS','S','M','L','XL','XXL','3XL'];
-    const JENIS = ['CSS','RNLS','RNSS','Muslimah'];
+    const html = filtered.map((o, i) => {
+      const isPaid = o.status_bayaran === 'diterima';
+      const eid    = esc(o.id || '');
 
-    const rows = filtered.map((o, i) => {
-      const isPaid    = o.status_bayaran === 'diterima';
-      const isEditing = editingId === o.id;
-      const eid       = escapeHtml(o.id || '');
-
-      if (isEditing) {
-        return `<tr style="background:#fffde7">
-          <td style="font-weight:600;color:var(--text-light)">${i+1}</td>
-          <td><input class="edit-input" id="edit-nama"     value="${escapeHtml(o.nama)}"></td>
-          <td><input class="edit-input" id="edit-telefon"  value="${escapeHtml(o.telefon)}" style="width:120px"></td>
-          <td><select class="edit-input" id="edit-jenis">${JENIS.map(j=>`<option value="${j}" ${o.jenis===j?'selected':''}>${j}</option>`).join('')}</select></td>
-          <td><select class="edit-input" id="edit-saiz">${SAIZ.map(s=>`<option value="${s}" ${o.saiz===s?'selected':''}>${s}</option>`).join('')}</select></td>
-          <td><input class="edit-input" id="edit-kuantiti" type="number" min="1" value="${o.kuantiti||1}" style="width:55px"></td>
-          <td><input class="edit-input" id="edit-jumlah"   type="number" value="${o.jumlah||0}" style="width:70px"></td>
-          <td style="font-size:11px;color:var(--text-light)">${escapeHtml(o.tarikh)}</td>
-          <td><select class="edit-input" id="edit-status" style="width:120px">
-            <option value="belum" ${!isPaid?'selected':''}>Belum Bayar</option>
-            <option value="diterima" ${isPaid?'selected':''}>Sudah Bayar</option>
-          </select></td>
-          <td>—</td>
-          <td>
-            <button class="btn-act btn-save"   onclick="saveEdit('${eid}')">💾 Simpan</button>
-            <button class="btn-act btn-cancel" onclick="cancelEdit()">✕ Batal</button>
-          </td>
-        </tr>`;
+      if (editingId === o.id) {
+        return `<div class="order-card">
+          <div class="card-edit">
+            <div class="edit-title">✏️ Edit Pesanan #${i+1} — ${esc(o.nama)}</div>
+            <div class="edit-grid">
+              <div class="edit-field edit-full">
+                <label class="edit-label">Nama</label>
+                <input class="edit-input" id="e-nama" value="${esc(o.nama)}">
+              </div>
+              <div class="edit-field edit-full">
+                <label class="edit-label">No. Telefon</label>
+                <input class="edit-input" id="e-tel" value="${esc(o.telefon)}">
+              </div>
+              <div class="edit-field">
+                <label class="edit-label">Jenis Baju</label>
+                <select class="edit-input" id="e-jenis">
+                  ${JENIS.map(j=>`<option value="${j}"${o.jenis===j?' selected':''}>${j}</option>`).join('')}
+                </select>
+              </div>
+              <div class="edit-field">
+                <label class="edit-label">Saiz</label>
+                <select class="edit-input" id="e-saiz">
+                  ${SAIZ.map(s=>`<option value="${s}"${o.saiz===s?' selected':''}>${s}</option>`).join('')}
+                </select>
+              </div>
+              <div class="edit-field">
+                <label class="edit-label">Kuantiti</label>
+                <input class="edit-input" id="e-qty" type="number" min="1" value="${o.kuantiti||1}">
+              </div>
+              <div class="edit-field">
+                <label class="edit-label">Jumlah (RM)</label>
+                <input class="edit-input" id="e-jumlah" type="number" step="0.01" value="${o.jumlah||0}">
+              </div>
+              <div class="edit-field">
+                <label class="edit-label">Tarikh</label>
+                <input class="edit-input" id="e-tarikh" value="${esc(o.tarikh||'')}">
+              </div>
+              <div class="edit-field">
+                <label class="edit-label">Status Bayaran</label>
+                <select class="edit-input" id="e-status">
+                  <option value="belum"${!isPaid?' selected':''}>Belum Bayar</option>
+                  <option value="diterima"${isPaid?' selected':''}>Sudah Bayar</option>
+                </select>
+              </div>
+            </div>
+            <div class="edit-actions">
+              <button class="btn btn-save"   onclick="saveEdit('${eid}')">💾 Simpan</button>
+              <button class="btn btn-cancel" onclick="cancelEdit()">✕ Batal</button>
+            </div>
+          </div>
+        </div>`;
       }
 
-      return `<tr>
-        <td style="font-weight:600;color:var(--text-light)">${i+1}</td>
-        <td><strong>${escapeHtml(o.nama)}</strong></td>
-        <td>${escapeHtml(o.telefon)}</td>
-        <td><span class="badge ${badgeClass(o.jenis)}">${escapeHtml(o.jenis)}</span></td>
-        <td><strong>${escapeHtml(o.saiz)}</strong></td>
-        <td style="text-align:center">${escapeHtml(o.kuantiti || 1)}</td>
-        <td style="font-weight:700;color:var(--green-dark)">RM ${escapeHtml(o.jumlah || 0)}</td>
-        <td style="font-size:11px;color:var(--text-light)">${escapeHtml(o.tarikh)}</td>
-        <td>
-          <span class="badge ${isPaid?'badge-paid':'badge-unpaid'}"
-            style="cursor:pointer;user-select:none"
-            onclick="toggleStatus('${eid}','${o.status_bayaran||'belum'}')">
-            ${isPaid ? '✓ Sudah Bayar' : '✗ Belum Bayar'}
-          </span>
-        </td>
-        <td>
-          <button class="btn-act btn-wa"  onclick="openWA('${eid}','bayar')"    title="Sahkan Bayaran">💰 Bayar</button>
-          <button class="btn-act btn-wa-r" onclick="openWA('${eid}','peringat')" title="Peringatan Bayaran">⏰ Ingatkan</button>
-        </td>
-        <td>
-          <button class="btn-act btn-edit" onclick="startEdit('${eid}')">✏️ Edit</button>
-        </td>
-      </tr>`;
+      return `<div class="order-card">
+        <div class="card-view">
+          <div class="card-row1">
+            <span class="card-num">#${i+1}</span>
+            <span class="card-name">${esc(o.nama)}</span>
+            <div class="card-badges">
+              <span class="badge ${badgeCls(o.jenis)}">${esc(o.jenis)}</span>
+              <span class="badge ${isPaid?'badge-paid':'badge-unpaid'}" style="cursor:pointer"
+                title="Klik untuk tukar status"
+                onclick="toggleStatus('${eid}','${o.status_bayaran||'belum'}')">
+                ${isPaid?'✓ Sudah Bayar':'✗ Belum Bayar'}
+              </span>
+            </div>
+          </div>
+          <div class="card-row2">
+            <span>📱 ${esc(o.telefon)}</span>
+            <span>🎽 ${esc(o.jenis)} · Saiz <strong>${esc(o.saiz)}</strong> × <strong>${o.kuantiti||1}</strong></span>
+            <span>💰 <strong>RM ${o.jumlah||0}</strong></span>
+            <span>📅 ${esc(o.tarikh||'—')}</span>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-wa"   onclick="openWA('${eid}','bayar')">💰 Sahkan Bayaran</button>
+            <button class="btn btn-war"  onclick="openWA('${eid}','peringat')">⏰ Peringatan</button>
+            <button class="btn btn-edit" onclick="startEdit('${eid}')">✏️ Edit</button>
+            <button class="btn btn-del"  onclick="confirmDelete('${eid}','${esc(o.nama)}')">🗑️ Padam</button>
+          </div>
+        </div>
+      </div>`;
     }).join('');
 
-    document.getElementById('table-container').innerHTML = `
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th><th>Nama</th><th>Telefon</th>
-              <th>Jenis</th><th>Saiz</th><th>Qty</th><th>Jumlah</th><th>Tarikh</th>
-              <th>Status Bayaran</th><th>WhatsApp</th><th>Tindakan</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>`;
+    document.getElementById('orders-container').innerHTML =
+      `<div class="order-list">${html}</div>`;
   }
 
-  // === STATUS BAYARAN ===
-  async function toggleStatus(id, currentStatus) {
-    const newStatus = currentStatus === 'diterima' ? 'belum' : 'diterima';
-    const token = sessionStorage.getItem(AUTH_KEY);
+  // === STATUS TOGGLE ===
+  async function toggleStatus(id, cur) {
+    const newStatus = cur === 'diterima' ? 'belum' : 'diterima';
     const res = await fetch('/.netlify/functions/order-update', {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      headers: { 'Content-Type':'application/json', Authorization:`Bearer ${sessionStorage.getItem(AUTH_KEY)}` },
       body: JSON.stringify({ id, status_bayaran: newStatus }),
     });
     if (res.ok) {
-      const order = allOrders.find(o => o.id === id);
-      if (order) order.status_bayaran = newStatus;
-      updateStats();
-      renderTable();
+      const o = allOrders.find(x => x.id === id);
+      if (o) o.status_bayaran = newStatus;
+      updateStats(); renderOrders();
     } else {
-      alert('Gagal kemaskini status. Cuba semula.');
+      alert('Gagal kemaskini status.');
     }
   }
 
   // === WHATSAPP ===
   function openWA(id, jenis) {
-    const o = allOrders.find(ord => ord.id === id);
+    const o = allOrders.find(x => x.id === id);
     if (!o) return;
-    const raw     = (o.telefon || '').replace(/[^0-9]/g, '');
-    const waPhone = raw.startsWith('0') ? '60' + raw.slice(1) : raw;
-    const detail  = `${o.jenis} | Saiz: ${o.saiz} | Qty: ${o.kuantiti || 1} | RM ${o.jumlah}`;
-    let msg;
-    if (jenis === 'bayar') {
-      msg = `Assalamualaikum ${o.nama},
-
-✅ Bayaran baju PIBG anda telah *DITERIMA*.
-
-🎽 ${detail}
-
-Terima kasih! 🙏 — Admin PIBG SK Kiandongo`;
-    } else {
-      msg = `Assalamualaikum ${o.nama},
-
-⏳ Peringatan: Bayaran baju PIBG anda *BELUM DITERIMA*.
-
-🎽 ${detail}
-
-Sila buat bayaran melalui QR Maybank sebelum 8 Mei 2026. TQ 🙏`;
-    }
-    window.open('https://wa.me/' + waPhone + '?text=' + encodeURIComponent(msg), '_blank');
+    const raw  = (o.telefon||'').replace(/[^0-9]/g,'');
+    const wa   = raw.startsWith('0') ? '60'+raw.slice(1) : raw;
+    const det  = `${o.jenis} | Saiz: ${o.saiz} | Qty: ${o.kuantiti||1} | RM ${o.jumlah}`;
+    const msg  = jenis === 'bayar'
+      ? `Assalamualaikum ${o.nama},\n\n✅ Bayaran baju PIBG anda telah *DITERIMA*.\n\n🎽 ${det}\n\nTerima kasih! 🙏 — Admin PIBG SK Kiandongo`
+      : `Assalamualaikum ${o.nama},\n\n⏳ Peringatan: Bayaran baju PIBG anda *BELUM DITERIMA*.\n\n🎽 ${det}\n\nSila buat bayaran melalui QR Maybank sebelum 8 Mei 2026. TQ 🙏`;
+    window.open('https://wa.me/'+wa+'?text='+encodeURIComponent(msg), '_blank');
   }
 
   // === EDIT ===
   function startEdit(id) {
     editingId = id;
-    renderTable();
+    renderOrders();
     setTimeout(() => {
-      const el = document.getElementById('edit-nama');
-      if (el) el.focus();
+      const el = document.getElementById('e-nama');
+      if (el) { el.focus(); el.closest('.order-card').scrollIntoView({ behavior:'smooth', block:'nearest' }); }
     }, 50);
   }
 
-  function cancelEdit() {
-    editingId = null;
-    renderTable();
-  }
+  function cancelEdit() { editingId = null; renderOrders(); }
 
   async function saveEdit(id) {
-    const token = sessionStorage.getItem(AUTH_KEY);
     const updates = {
-      nama:          document.getElementById('edit-nama').value.trim(),
-      telefon:       document.getElementById('edit-telefon').value.trim(),
-      jenis:         document.getElementById('edit-jenis').value,
-      saiz:          document.getElementById('edit-saiz').value,
-      kuantiti:      parseInt(document.getElementById('edit-kuantiti').value) || 1,
-      jumlah:        parseFloat(document.getElementById('edit-jumlah').value) || 0,
-      status_bayaran: document.getElementById('edit-status').value,
+      nama:           document.getElementById('e-nama').value.trim(),
+      telefon:        document.getElementById('e-tel').value.trim(),
+      jenis:          document.getElementById('e-jenis').value,
+      saiz:           document.getElementById('e-saiz').value,
+      kuantiti:       parseInt(document.getElementById('e-qty').value) || 1,
+      jumlah:         parseFloat(document.getElementById('e-jumlah').value) || 0,
+      tarikh:         document.getElementById('e-tarikh').value.trim(),
+      status_bayaran: document.getElementById('e-status').value,
     };
     const res = await fetch('/.netlify/functions/order-update', {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      headers: { 'Content-Type':'application/json', Authorization:`Bearer ${sessionStorage.getItem(AUTH_KEY)}` },
       body: JSON.stringify({ id, ...updates }),
     });
     if (res.ok) {
-      const order = allOrders.find(o => o.id === id);
-      if (order) Object.assign(order, updates);
-      editingId = null;
-      updateStats();
-      renderTable();
+      const o = allOrders.find(x => x.id === id);
+      if (o) Object.assign(o, updates);
+      editingId = null; updateStats(); renderOrders();
     } else {
       alert('Gagal menyimpan. Cuba semula.');
     }
   }
 
+  // === DELETE ===
+  function confirmDelete(id, nama) {
+    pendingDeleteId = id;
+    document.getElementById('confirm-msg').textContent =
+      `Padam pesanan daripada "${nama}"? Tindakan ini tidak boleh dibatalkan.`;
+    document.getElementById('confirm-overlay').style.display = 'flex';
+  }
+
+  function closeConfirm() {
+    document.getElementById('confirm-overlay').style.display = 'none';
+    pendingDeleteId = null;
+  }
+
+  document.getElementById('confirm-ok').onclick = async () => {
+    const id = pendingDeleteId;
+    if (!id) return;
+    closeConfirm();
+    const res = await fetch('/.netlify/functions/order-delete', {
+      method: 'DELETE',
+      headers: { 'Content-Type':'application/json', Authorization:`Bearer ${sessionStorage.getItem(AUTH_KEY)}` },
+      body: JSON.stringify({ id }),
+    });
+    if (res.ok) {
+      allOrders = allOrders.filter(o => o.id !== id);
+      updateStats(); renderOrders();
+    } else {
+      alert('Gagal memadam. Cuba semula.');
+    }
+  };
+
   // === CSV EXPORT ===
   function exportCSV() {
-    const headers = ['Bil','Nama','Telefon','Jenis','Saiz','Kuantiti','Jumlah (RM)','Tarikh','Status Bayaran'];
-    const rows = allOrders.map((o, i) =>
-      [i+1, o.nama, o.telefon, o.jenis, o.saiz, o.kuantiti, o.jumlah, o.tarikh,
-       o.status_bayaran === 'diterima' ? 'Sudah Bayar' : 'Belum Bayar'].map(csvCell).join(',')
+    const hdrs = ['Bil','Nama','Telefon','Jenis','Saiz','Kuantiti','Jumlah (RM)','Tarikh','Status Bayaran'];
+    const rows = allOrders.map((o,i) =>
+      [i+1,o.nama,o.telefon,o.jenis,o.saiz,o.kuantiti,o.jumlah,o.tarikh,
+       o.status_bayaran==='diterima'?'Sudah Bayar':'Belum Bayar'].map(csvCell).join(',')
     );
-    const csv  = [headers.join(','), ...rows].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const a    = document.createElement('a');
-    a.href     = URL.createObjectURL(blob);
-    a.download = 'pesanan_baju_pibg_2026.csv';
+    const csv  = [hdrs.join(','),...rows].join('\n');
+    const a    = Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(new Blob([csv],{type:'text/csv'})),
+      download: 'pesanan_baju_pibg_2026.csv',
+    });
     a.click();
   }
 </script>
