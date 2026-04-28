@@ -363,8 +363,7 @@
 
   function csvCell(value) {
     const text = String(value ?? '');
-    return /[",
-]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
   }
 
   // === STATS ===
