@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard — Baju PIBG</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --green-dark: #1a5c2e;
@@ -499,7 +501,7 @@
       </div>
       <div style="padding:14px 18px 0;">
         <div class="filter-bar" style="margin-bottom:12px;">
-          <input class="search-input" id="search-box" type="text" placeholder="🔍 Cari nama / telefon..." oninput="renderOrders()">
+          <input class="search-input" id="search-box" type="text" placeholder="🔍 Cari nama / telefon...">
           <select class="sort-select" id="sort-order" onchange="renderOrders()">
             <option value="newest">Tarikh Terkini</option>
             <option value="oldest">Tarikh Terdahulu</option>
@@ -574,7 +576,19 @@
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('dashboard-page').style.display = 'block';
     updateManualTotal();
+    setupSearchDebounce();
     loadOrders();
+  }
+
+  let searchDebounceTimer;
+  function setupSearchDebounce() {
+    const box = document.getElementById('search-box');
+    if (!box || box.dataset.bound === '1') return;
+    box.dataset.bound = '1';
+    box.addEventListener('input', () => {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(renderOrders, 150);
+    });
   }
 
   if (sessionStorage.getItem(AUTH_KEY)) showDashboard();
@@ -689,7 +703,7 @@
     document.getElementById('stat-bayaran').textContent  = 'RM ' + paid.reduce((a,o) => a+(o.jumlah||0), 0);
     document.getElementById('stat-scope').textContent = getScopeLabel();
     updateFilterHelp();
-    const days = Math.max(0, Math.ceil((new Date('2026-05-08') - new Date()) / 86400000));
+    const days = Math.max(0, Math.ceil((new Date('2026-05-08T23:59:59+08:00') - new Date()) / 86400000));
     document.getElementById('stat-pending').textContent  = days;
   }
 
@@ -732,8 +746,6 @@
     const kuantiti = Math.max(1, parseInt(document.getElementById('m-qty').value || '1', 10) || 1);
     const status_bayaran = document.getElementById('m-status').value;
     const catatan = document.getElementById('m-catatan').value.trim();
-    const harga = getUnitPrice(jenis, saiz);
-    const jumlah = getOrderTotal(jenis, saiz, kuantiti);
 
     if (!nama || !telefon) {
       alert('Nama dan nombor telefon perlu diisi.');
@@ -746,19 +758,19 @@
       jenis,
       saiz,
       kuantiti,
-      harga,
-      jumlah,
-      tarikh: new Date().toLocaleString('ms-MY', { timeZone: 'Asia/Kuala_Lumpur' }),
       status_bayaran,
       catatan: catatan || 'Ditambah secara manual oleh admin',
-      createdSource: 'admin-manual'
     };
 
-    const res = await fetch('/.netlify/functions/order', {
+    const res = await fetch('/.netlify/functions/order-admin', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${sessionStorage.getItem(AUTH_KEY) || ''}`,
+      },
       body: JSON.stringify(order),
     });
+    if (res.status === 401) { doLogout(); return; }
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       alert('Gagal menambah pesanan: ' + (data.error || 'Cuba semula.'));

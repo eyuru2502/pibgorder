@@ -1,9 +1,7 @@
 import { getStore } from '@netlify/blobs';
 import {
-  checkRateLimit,
-  getClientIp,
   getUnitPrice,
-  isOriginAllowed,
+  requireAuth,
   validateOrderInput,
 } from './_lib/orders.mjs';
 
@@ -14,20 +12,9 @@ export default async (request) => {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers });
   }
 
-  if (!isOriginAllowed(request)) {
-    return new Response(JSON.stringify({ error: 'Origin tidak dibenarkan' }), {
-      status: 403,
-      headers,
-    });
-  }
-
-  const ip = getClientIp(request);
-  const allowed = await checkRateLimit('order', ip, 5, 60);
-  if (!allowed) {
-    return new Response(JSON.stringify({ error: 'Terlalu banyak permintaan. Cuba lagi sebentar.' }), {
-      status: 429,
-      headers,
-    });
+  const session = requireAuth(request);
+  if (!session) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers });
   }
 
   let raw;
@@ -37,11 +24,7 @@ export default async (request) => {
     return new Response(JSON.stringify({ error: 'Permintaan tidak sah' }), { status: 400, headers });
   }
 
-  if (raw && typeof raw === 'object' && raw.hp_field) {
-    return new Response(JSON.stringify({ success: true, id: 'noop' }), { status: 200, headers });
-  }
-
-  const validation = validateOrderInput(raw, { allowStatus: false });
+  const validation = validateOrderInput(raw, { allowStatus: true });
   if (validation.error) {
     return new Response(JSON.stringify({ error: validation.error }), { status: 400, headers });
   }
@@ -59,15 +42,15 @@ export default async (request) => {
     const record = {
       nama: input.nama,
       telefon: input.telefon,
-      catatan: input.catatan,
+      catatan: input.catatan || 'Ditambah secara manual oleh admin',
       jenis: input.jenis,
       saiz: input.saiz,
       kuantiti: input.kuantiti,
       harga,
       jumlah,
       tarikh,
-      status_bayaran: 'belum',
-      createdSource: 'public',
+      status_bayaran: input.status_bayaran,
+      createdSource: 'admin-manual',
       id: key,
       createdAtMs,
       createdAtIso: new Date(createdAtMs).toISOString(),
@@ -76,7 +59,7 @@ export default async (request) => {
     await store.setJSON(key, record);
     return new Response(JSON.stringify({ success: true, id: key }), { status: 200, headers });
   } catch (err) {
-    console.error('order create failed', err);
+    console.error('order-admin create failed', err);
     return new Response(JSON.stringify({ error: 'Gagal simpan pesanan' }), { status: 500, headers });
   }
 };

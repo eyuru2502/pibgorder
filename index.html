@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Order Baju PIBG 2026</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Baloo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --green-dark: #1a5c2e;
@@ -259,7 +261,7 @@
 <div class="info-section">
   <p class="section-title">🎽 Reka Bentuk Baju PIBG 2026</p>
   <div class="info-img-wrap">
-    <img class="info-img" src="baju-pibg.jpg.jpeg" alt="Reka Bentuk Baju PIBG 2026">
+    <img class="info-img" src="baju-pibg.jpg.jpeg" alt="Reka Bentuk Baju PIBG 2026" loading="lazy" decoding="async" width="1200" height="800">
   </div>
   <p class="info-help">Rujuk reka bentuk baju sebenar di bawah sebelum membuat pilihan tempahan.</p>
 </div>
@@ -317,7 +319,7 @@
 <div class="info-section">
   <p class="section-title">📏 Carta Saiz Baju</p>
   <div class="info-img-wrap">
-    <img class="info-img" src="carta-saiz.jpg.jpeg" alt="Carta Saiz Standard dan Muslimah">
+    <img class="info-img" src="carta-saiz.jpg.jpeg" alt="Carta Saiz Standard dan Muslimah" loading="lazy" decoding="async" width="1200" height="800">
   </div>
   <p class="info-help">Gunakan carta saiz ini untuk semak ukuran sebelum menghantar pesanan.</p>
 </div>
@@ -348,6 +350,10 @@
     <div class="form-group">
       <label class="form-label">Catatan (pilihan)</label>
       <input class="form-input" id="catatan" type="text" placeholder="Sebarang permintaan khas...">
+    </div>
+
+    <div style="position:absolute;left:-9999px;top:-9999px;" aria-hidden="true">
+      <label>Tinggalkan kosong<input id="hp-field" type="text" tabindex="-1" autocomplete="off"></label>
     </div>
 
     <div class="order-summary" id="order-summary">
@@ -395,7 +401,7 @@
     <div class="toast-payment">
       <div class="toast-payment-title">💳 Cara Pembayaran</div>
       <div class="toast-qr-wrap">
-        <img class="toast-qr" id="qr-img" src="maybank-qr.jpeg" alt="QR Maybank">
+        <img class="toast-qr" id="qr-img" src="maybank-qr.jpeg" alt="QR Maybank" loading="lazy" decoding="async" width="600" height="600">
       </div>
       <div class="toast-qr-name">Amri Izzad Bin Tahir</div>
       <div class="toast-qr-ref">Perihal: <strong>Bayaran Tempahan Baju PIBG</strong></div>
@@ -528,7 +534,9 @@
 
     const unitPrice = getUnitPrice(selectedPrice, selectedSize);
     const totalPrice = getOrderTotal(selectedPrice, selectedSize, qty);
-    const order = { nama, telefon, catatan, jenis: selectedType, harga: unitPrice, saiz: selectedSize, kuantiti: qty, jumlah: totalPrice, tarikh: new Date().toLocaleString('ms-MY', { timeZone: 'Asia/Kuala_Lumpur' }) };
+    const hp = (document.getElementById('hp-field')?.value || '').trim();
+    const order = { nama, telefon, catatan, jenis: selectedType, saiz: selectedSize, kuantiti: qty };
+    if (hp) order.hp_field = hp;
 
     try {
       const res = await fetch('/.netlify/functions/order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(order) });

@@ -1,29 +1,10 @@
 import { getStore } from '@netlify/blobs';
-
-const PRICE_MAP = { CSS: 45, RNLS: 47, RNSS: 44, Muslimah: 50 };
-const SIZE_SURCHARGE = 5;
-const SURCHARGE_SIZES = new Set(['3XL', '4XL']);
-
-function getSizeSurcharge(size) {
-  return SURCHARGE_SIZES.has(String(size ?? '').trim().toUpperCase()) ? SIZE_SURCHARGE : 0;
-}
-
-function getUnitPrice(jenis, saiz) {
-  return Number(PRICE_MAP[jenis] || 0) + getSizeSurcharge(saiz);
-}
-
-function buildFingerprint(order = {}) {
-  return [
-    order.nama,
-    order.telefon,
-    order.jenis,
-    order.saiz,
-    order.kuantiti,
-    order.jumlah,
-    order.tarikh,
-    order.status_bayaran,
-  ].map((value) => String(value ?? '').trim().toLowerCase()).join('|');
-}
+import {
+  buildFingerprint,
+  getUnitPrice,
+  requireAuth,
+  sanitizeUpdateInput,
+} from './_lib/orders.mjs';
 
 export default async (request) => {
   const headers = { 'Content-Type': 'application/json' };
@@ -32,10 +13,8 @@ export default async (request) => {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers });
   }
 
-  const auth = request.headers.get('authorization') || '';
-  const token = auth.replace(/^Bearer\s+/i, '');
-  const expected = process.env.AUTH_TOKEN;
-  if (!expected || token !== expected) {
+  const session = requireAuth(request);
+  if (!session) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers });
   }
 
@@ -43,10 +22,15 @@ export default async (request) => {
   try {
     body = await request.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers });
+    return new Response(JSON.stringify({ error: 'Permintaan tidak sah' }), { status: 400, headers });
   }
 
-  const { id, fingerprint, original, ...updates } = body;
+  const { id, fingerprint, original } = body || {};
+  const sanitized = sanitizeUpdateInput(body);
+  if (sanitized.error) {
+    return new Response(JSON.stringify({ error: sanitized.error }), { status: 400, headers });
+  }
+  const updates = sanitized.value;
 
   try {
     const store = getStore('pibg-orders');
@@ -71,20 +55,24 @@ export default async (request) => {
     if (!existing) {
       return new Response(JSON.stringify({ error: 'Pesanan tidak dijumpai' }), { status: 404, headers });
     }
+
     const nextOrder = {
       ...existing,
       ...updates,
       id: existing.id || targetKey,
-      createdAtMs: existing.createdAtMs || updates.createdAtMs || null,
-      createdAtIso: existing.createdAtIso || updates.createdAtIso || null,
+      createdAtMs: existing.createdAtMs || null,
+      createdAtIso: existing.createdAtIso || null,
     };
+
     if (nextOrder.jenis && nextOrder.saiz && nextOrder.kuantiti) {
       nextOrder.harga = getUnitPrice(nextOrder.jenis, nextOrder.saiz);
       nextOrder.jumlah = nextOrder.harga * Math.max(1, Number(nextOrder.kuantiti || 1));
     }
+
     await store.setJSON(targetKey, nextOrder);
     return new Response(JSON.stringify({ success: true }), { status: 200, headers });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'Gagal kemaskini', detail: err.message }), { status: 500, headers });
+    console.error('order-update failed', err);
+    return new Response(JSON.stringify({ error: 'Gagal kemaskini' }), { status: 500, headers });
   }
 };
