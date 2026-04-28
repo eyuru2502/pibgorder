@@ -657,6 +657,7 @@
   function cancelEdit() { editingId = null; renderOrders(); }
 
   async function saveEdit(id) {
+    const current = allOrders.find(x => x.id === id) || {};
     const updates = {
       nama:           document.getElementById('e-nama').value.trim(),
       telefon:        document.getElementById('e-tel').value.trim(),
@@ -670,14 +671,31 @@
     const res = await fetch('/.netlify/functions/order-update', {
       method: 'PATCH',
       headers: { 'Content-Type':'application/json', Authorization:`Bearer ${sessionStorage.getItem(AUTH_KEY)}` },
-      body: JSON.stringify({ id, ...updates }),
+      body: JSON.stringify({
+        id,
+        fingerprint: current.fingerprint || '',
+        createdAtMs: current.createdAtMs || '',
+        createdAtIso: current.createdAtIso || '',
+        original: {
+          nama: current.nama || '',
+          telefon: current.telefon || '',
+          jenis: current.jenis || '',
+          saiz: current.saiz || '',
+          kuantiti: current.kuantiti || 1,
+          jumlah: current.jumlah || 0,
+          tarikh: current.tarikh || '',
+          status_bayaran: current.status_bayaran || '',
+        },
+        ...updates
+      }),
     });
+    const data = await res.json().catch(() => ({}));
     if (res.ok) {
       const o = allOrders.find(x => x.id === id);
       if (o) Object.assign(o, updates);
       editingId = null; updateStats(); renderOrders();
     } else {
-      alert('Gagal menyimpan. Cuba semula.');
+      alert('Gagal menyimpan: ' + (data.error || 'Cuba semula.') + (data.detail ? ' [' + data.detail + ']' : ''));
     }
   }
 

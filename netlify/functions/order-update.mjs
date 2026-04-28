@@ -34,7 +34,7 @@ export default async (request) => {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers });
   }
 
-  const { id, fingerprint, ...updates } = body;
+  const { id, fingerprint, original, ...updates } = body;
 
   try {
     const store = getStore('pibg-orders');
@@ -43,7 +43,7 @@ export default async (request) => {
 
     if (!existing) {
       const { blobs } = await store.list();
-      const matcher = fingerprint || buildFingerprint(body);
+      const matcher = fingerprint || buildFingerprint(original || body);
       for (const blob of blobs) {
         const record = await store.get(blob.key, { type: 'json' });
         if (!record) continue;
@@ -59,7 +59,14 @@ export default async (request) => {
     if (!existing) {
       return new Response(JSON.stringify({ error: 'Pesanan tidak dijumpai' }), { status: 404, headers });
     }
-    await store.setJSON(targetKey, { ...existing, ...updates, id: existing.id || targetKey });
+    const nextOrder = {
+      ...existing,
+      ...updates,
+      id: existing.id || targetKey,
+      createdAtMs: existing.createdAtMs || updates.createdAtMs || null,
+      createdAtIso: existing.createdAtIso || updates.createdAtIso || null,
+    };
+    await store.setJSON(targetKey, nextOrder);
     return new Response(JSON.stringify({ success: true }), { status: 200, headers });
   } catch (err) {
     return new Response(JSON.stringify({ error: 'Gagal kemaskini', detail: err.message }), { status: 500, headers });
