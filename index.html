@@ -108,6 +108,8 @@
   .toast-qr-ref strong { color:#e05a5a; }
   .toast-contact { font-size:12px; color:var(--text-mid); background:#f8f8f8; border-radius:8px; padding:10px 12px; margin-bottom:14px; line-height:1.6; }
   .toast-contact a { color:var(--green-mid); font-weight:600; text-decoration:none; }
+  .toast-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .toast-wa { padding:10px 18px; background:#1f9d55; color:white; border:none; border-radius:999px; font-family:'Poppins',sans-serif; font-size:14px; font-weight:600; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; }
   .toast-close { padding:10px 32px; background:linear-gradient(135deg,var(--green-mid),var(--green-bright)); color:white; border:none; border-radius:999px; font-family:'Poppins',sans-serif; font-size:14px; font-weight:600; cursor:pointer; }
 
   .admin-link { text-align:center; padding:0 0 40px; }
@@ -280,7 +282,10 @@
       📞 Pertanyaan? Hubungi<br>
       <a href="tel:+60105838718"><strong>Cikgu Amri Izzad Tahir</strong><br>+60 10-583 8718</a>
     </div>
-    <button class="toast-close" onclick="closeToast()">Tutup</button>
+    <div class="toast-actions">
+      <a class="toast-wa" id="toast-wa-link" href="#" target="_blank" rel="noopener">WhatsApp Pesanan</a>
+      <button class="toast-close" onclick="closeToast()">Tutup</button>
+    </div>
   </div>
 </div>
 
@@ -371,6 +376,7 @@
 
   function showToast(nama, jenis, saiz, qty, jumlah) {
     const msg = document.getElementById('toast-msg');
+    const waLink = document.getElementById('toast-wa-link');
     msg.textContent = '';
     const name = document.createElement('strong');
     name.textContent = nama;
@@ -378,6 +384,16 @@
     const total = document.createElement('strong');
     total.textContent = `RM ${jumlah}`;
     msg.append(total);
+    const waText = [
+      'Salam Sejahtera dan Salam Onsoi,',
+      '',
+      `Saya ${nama} ingin mengesahkan tempahan baju PIBG berikut:`,
+      `Jenis: ${jenis}`,
+      `Saiz: ${saiz}`,
+      `Kuantiti: ${qty}`,
+      `Jumlah: RM ${jumlah}`
+    ].join('\n');
+    waLink.href = `https://wa.me/60105838718?text=${encodeURIComponent(waText)}`;
     document.getElementById('toast-container').classList.add('show');
     document.getElementById('toast-overlay').classList.add('show');
   }
