@@ -239,6 +239,7 @@
       <button class="size-btn" onclick="selectSize('3XL')">3XL</button>
       <button class="size-btn" onclick="selectSize('4XL')">4XL</button>
     </div>
+    <p class="info-help" style="margin-top:12px;">Tambahan <strong>RM5</strong> dikenakan bagi pesanan saiz <strong>3XL dan 4XL</strong>. Jumlah bayaran dikira automatik.</p>
   </div>
 </div>
 
@@ -381,7 +382,21 @@
 
   updateCountdownDays();
 
+  const SIZE_SURCHARGE = 5;
+  const SURCHARGE_SIZES = ['3XL', '4XL'];
   let selectedType = null, selectedPrice = 0, selectedSize = null, qty = 1;
+
+  function getSizeSurcharge(size) {
+    return SURCHARGE_SIZES.includes(String(size || '').toUpperCase()) ? SIZE_SURCHARGE : 0;
+  }
+
+  function getUnitPrice(basePrice, size) {
+    return Number(basePrice || 0) + getSizeSurcharge(size);
+  }
+
+  function getOrderTotal(basePrice, size, quantity) {
+    return getUnitPrice(basePrice, size) * Math.max(1, Number(quantity || 1));
+  }
 
   function selectType(el) {
     document.querySelectorAll('.price-card').forEach(c => c.classList.remove('selected'));
@@ -405,11 +420,17 @@
 
   function updateSummary() {
     if (selectedType && selectedSize) {
+      const surcharge = getSizeSurcharge(selectedSize);
+      const unitPrice = getUnitPrice(selectedPrice, selectedSize);
       document.getElementById('order-summary').classList.add('visible');
-      document.getElementById('s-jenis').textContent = selectedType + ' — RM' + selectedPrice;
-      document.getElementById('s-saiz').textContent = selectedSize;
+      document.getElementById('s-jenis').textContent = surcharge > 0
+        ? `${selectedType} — RM${selectedPrice} + RM${surcharge}`
+        : `${selectedType} — RM${selectedPrice}`;
+      document.getElementById('s-saiz').textContent = surcharge > 0
+        ? `${selectedSize} (termasuk tambahan RM${surcharge})`
+        : selectedSize;
       document.getElementById('s-qty').textContent = qty;
-      document.getElementById('s-total').textContent = 'RM ' + (selectedPrice * qty);
+      document.getElementById('s-total').textContent = 'RM ' + getOrderTotal(selectedPrice, selectedSize, qty);
     }
   }
 
@@ -427,12 +448,14 @@
     const btn = document.getElementById('submit-btn');
     btn.disabled = true; btn.textContent = 'Menghantar...';
 
-    const order = { nama, telefon, catatan, jenis: selectedType, harga: selectedPrice, saiz: selectedSize, kuantiti: qty, jumlah: selectedPrice * qty, tarikh: new Date().toLocaleString('ms-MY', { timeZone: 'Asia/Kuala_Lumpur' }) };
+    const unitPrice = getUnitPrice(selectedPrice, selectedSize);
+    const totalPrice = getOrderTotal(selectedPrice, selectedSize, qty);
+    const order = { nama, telefon, catatan, jenis: selectedType, harga: unitPrice, saiz: selectedSize, kuantiti: qty, jumlah: totalPrice, tarikh: new Date().toLocaleString('ms-MY', { timeZone: 'Asia/Kuala_Lumpur' }) };
 
     try {
       const res = await fetch('/.netlify/functions/order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(order) });
       const data = await res.json();
-      if (res.ok) { showToast(nama, selectedType, selectedSize, qty, selectedPrice * qty); resetForm(); }
+      if (res.ok) { showToast(nama, selectedType, selectedSize, qty, totalPrice); resetForm(); }
       else alert('Ralat: ' + (data.error || 'Cuba semula.'));
     } catch (e) { alert('Tiada sambungan. Sila cuba lagi.'); }
 

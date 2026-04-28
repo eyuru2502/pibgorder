@@ -416,7 +416,7 @@
         </div>
         <div class="manual-field">
           <label class="manual-label">Saiz</label>
-          <select class="manual-input" id="m-saiz">
+          <select class="manual-input" id="m-saiz" onchange="updateManualTotal()">
             <option value="XS">XS</option>
             <option value="S">S</option>
             <option value="M">M</option>
@@ -437,6 +437,7 @@
         </div>
       </div>
       <div class="manual-summary" id="manual-summary">Jumlah semasa: <strong>RM 45</strong></div>
+      <div style="font-size:12px;color:#5d6b63;margin-top:8px;">Saiz <strong>3XL</strong> dan ke atas dikenakan tambahan <strong>RM5</strong> sehelai.</div>
       <div class="manual-actions">
         <button class="btn btn-save" onclick="submitManualOrder()">💾 Simpan Pesanan</button>
         <button class="btn btn-cancel" onclick="resetManualOrder()">↺ Reset</button>
@@ -460,9 +461,11 @@
 
 <script>
   const AUTH_KEY = 'pibg_admin_token';
-  const SAIZ  = ['XS','S','M','L','XL','XXL','3XL'];
+  const SAIZ  = ['XS','S','M','L','XL','XXL','3XL','4XL'];
   const JENIS = ['CSS','RNLS','RNSS','Muslimah'];
   const PRICE_MAP = { CSS: 45, RNLS: 47, RNSS: 44, Muslimah: 50 };
+  const SIZE_SURCHARGE = 5;
+  const SURCHARGE_SIZES = ['3XL', '4XL'];
   const badgeCls = j => ({ CSS:'badge-css', RNLS:'badge-rnls', RNSS:'badge-rnss', Muslimah:'badge-mus' }[j] || '');
 
   let allOrders    = [];
@@ -539,6 +542,18 @@
     return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
   }
 
+  function getSizeSurcharge(size) {
+    return SURCHARGE_SIZES.includes(String(size || '').toUpperCase()) ? SIZE_SURCHARGE : 0;
+  }
+
+  function getUnitPrice(jenis, saiz) {
+    return Number(PRICE_MAP[jenis] || 0) + getSizeSurcharge(saiz);
+  }
+
+  function getOrderTotal(jenis, saiz, kuantiti) {
+    return getUnitPrice(jenis, saiz) * Math.max(1, Number(kuantiti || 1));
+  }
+
   function parseOrderTime(value) {
     const raw = String(value ?? '').trim();
     if (!raw) return 0;
@@ -601,10 +616,14 @@
 
   function updateManualTotal() {
     const jenis = document.getElementById('m-jenis')?.value || 'CSS';
+    const saiz = document.getElementById('m-saiz')?.value || 'XS';
     const qty = Math.max(1, parseInt(document.getElementById('m-qty')?.value || '1', 10) || 1);
-    const total = (PRICE_MAP[jenis] || 0) * qty;
+    const surcharge = getSizeSurcharge(saiz);
+    const total = getOrderTotal(jenis, saiz, qty);
     const summary = document.getElementById('manual-summary');
-    if (summary) summary.innerHTML = `Jumlah semasa: <strong>RM ${total}</strong>`;
+    if (summary) summary.innerHTML = surcharge > 0
+      ? `Jumlah semasa: <strong>RM ${total}</strong> <span style="color:#8d5b00;">(termasuk +RM${surcharge} saiz besar)</span>`
+      : `Jumlah semasa: <strong>RM ${total}</strong>`;
   }
 
   function resetManualOrder() {
@@ -626,8 +645,8 @@
     const kuantiti = Math.max(1, parseInt(document.getElementById('m-qty').value || '1', 10) || 1);
     const status_bayaran = document.getElementById('m-status').value;
     const catatan = document.getElementById('m-catatan').value.trim();
-    const harga = PRICE_MAP[jenis] || 0;
-    const jumlah = harga * kuantiti;
+    const harga = getUnitPrice(jenis, saiz);
+    const jumlah = getOrderTotal(jenis, saiz, kuantiti);
 
     if (!nama || !telefon) {
       alert('Nama dan nombor telefon perlu diisi.');
@@ -731,24 +750,25 @@
               </div>
               <div class="edit-field">
                 <label class="edit-label">Jenis Baju</label>
-                <select class="edit-input" id="e-jenis">
+                 <select class="edit-input" id="e-jenis" onchange="refreshEditTotal()">
                   ${JENIS.map(j=>`<option value="${j}"${o.jenis===j?' selected':''}>${j}</option>`).join('')}
                 </select>
               </div>
               <div class="edit-field">
                 <label class="edit-label">Saiz</label>
-                <select class="edit-input" id="e-saiz">
+                 <select class="edit-input" id="e-saiz" onchange="refreshEditTotal()">
                   ${SAIZ.map(s=>`<option value="${s}"${o.saiz===s?' selected':''}>${s}</option>`).join('')}
                 </select>
               </div>
               <div class="edit-field">
                 <label class="edit-label">Kuantiti</label>
-                <input class="edit-input" id="e-qty" type="number" min="1" value="${o.kuantiti||1}">
-              </div>
-              <div class="edit-field">
-                <label class="edit-label">Jumlah (RM)</label>
-                <input class="edit-input" id="e-jumlah" type="number" step="0.01" value="${o.jumlah||0}">
-              </div>
+                 <input class="edit-input" id="e-qty" type="number" min="1" value="${o.kuantiti||1}" oninput="refreshEditTotal()">
+               </div>
+               <div class="edit-field">
+                 <label class="edit-label">Jumlah (RM)</label>
+                 <input class="edit-input" id="e-jumlah" type="number" step="0.01" value="${o.jumlah||0}" readonly>
+                 <div class="edit-note" style="font-size:11px;color:#6b7e72;margin-top:6px;">3XL dan 4XL akan ditambah RM5 secara automatik.</div>
+               </div>
               <div class="edit-field">
                 <label class="edit-label">Tarikh</label>
                 <input class="edit-input" id="e-tarikh" value="${esc(o.tarikh||'')}">
@@ -787,7 +807,7 @@
           </div>
           <div class="card-row2">
             <span>📱 ${esc(o.telefon)}</span>
-            <span>🎽 ${esc(o.jenis)} · Saiz <strong>${esc(o.saiz)}</strong> × <strong>${o.kuantiti||1}</strong></span>
+            <span>🎽 ${esc(o.jenis)} · Saiz <strong>${esc(o.saiz)}</strong>${getSizeSurcharge(o.saiz) ? ` <em style="color:#8d5b00;">(+RM${getSizeSurcharge(o.saiz)})</em>` : ''} × <strong>${o.kuantiti||1}</strong></span>
             <span>💰 <strong>RM ${o.jumlah||0}</strong></span>
             <span>📅 ${esc(o.tarikh||'—')}</span>
             ${o.lastConfirmSentAt ? `<span>📨 Pengesahan: ${esc(o.lastConfirmSentAt)}</span>` : ''}
@@ -914,6 +934,7 @@
     editingId = id;
     renderOrders();
     setTimeout(() => {
+      refreshEditTotal();
       const el = document.getElementById('e-nama');
       if (el) { el.focus(); el.closest('.order-card').scrollIntoView({ behavior:'smooth', block:'nearest' }); }
     }, 50);
@@ -921,15 +942,28 @@
 
   function cancelEdit() { editingId = null; renderOrders(); }
 
+  function refreshEditTotal() {
+    const jenisEl = document.getElementById('e-jenis');
+    const saizEl = document.getElementById('e-saiz');
+    const qtyEl = document.getElementById('e-qty');
+    const jumlahEl = document.getElementById('e-jumlah');
+    if (!jenisEl || !saizEl || !qtyEl || !jumlahEl) return;
+    jumlahEl.value = String(getOrderTotal(jenisEl.value, saizEl.value, qtyEl.value));
+  }
+
   async function saveEdit(id) {
     const current = allOrders.find(x => x.id === id) || {};
+    const jenis = document.getElementById('e-jenis').value;
+    const saiz = document.getElementById('e-saiz').value;
+    const kuantiti = parseInt(document.getElementById('e-qty').value) || 1;
     const updates = {
       nama:           document.getElementById('e-nama').value.trim(),
       telefon:        document.getElementById('e-tel').value.trim(),
-      jenis:          document.getElementById('e-jenis').value,
-      saiz:           document.getElementById('e-saiz').value,
-      kuantiti:       parseInt(document.getElementById('e-qty').value) || 1,
-      jumlah:         parseFloat(document.getElementById('e-jumlah').value) || 0,
+      jenis,
+      saiz,
+      kuantiti,
+      harga:          getUnitPrice(jenis, saiz),
+      jumlah:         getOrderTotal(jenis, saiz, kuantiti),
       tarikh:         document.getElementById('e-tarikh').value.trim(),
       status_bayaran: document.getElementById('e-status').value,
     };

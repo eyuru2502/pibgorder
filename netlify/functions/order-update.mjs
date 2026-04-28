@@ -1,5 +1,17 @@
 import { getStore } from '@netlify/blobs';
 
+const PRICE_MAP = { CSS: 45, RNLS: 47, RNSS: 44, Muslimah: 50 };
+const SIZE_SURCHARGE = 5;
+const SURCHARGE_SIZES = new Set(['3XL', '4XL']);
+
+function getSizeSurcharge(size) {
+  return SURCHARGE_SIZES.has(String(size ?? '').trim().toUpperCase()) ? SIZE_SURCHARGE : 0;
+}
+
+function getUnitPrice(jenis, saiz) {
+  return Number(PRICE_MAP[jenis] || 0) + getSizeSurcharge(saiz);
+}
+
 function buildFingerprint(order = {}) {
   return [
     order.nama,
@@ -66,6 +78,10 @@ export default async (request) => {
       createdAtMs: existing.createdAtMs || updates.createdAtMs || null,
       createdAtIso: existing.createdAtIso || updates.createdAtIso || null,
     };
+    if (nextOrder.jenis && nextOrder.saiz && nextOrder.kuantiti) {
+      nextOrder.harga = getUnitPrice(nextOrder.jenis, nextOrder.saiz);
+      nextOrder.jumlah = nextOrder.harga * Math.max(1, Number(nextOrder.kuantiti || 1));
+    }
     await store.setJSON(targetKey, nextOrder);
     return new Response(JSON.stringify({ success: true }), { status: 200, headers });
   } catch (err) {
