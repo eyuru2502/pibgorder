@@ -919,17 +919,33 @@
   // === STATUS TOGGLE ===
   async function toggleStatus(id, cur) {
     const newStatus = cur === 'diterima' ? 'belum' : 'diterima';
+    const order = allOrders.find(x => x.id === id) || {};
     const res = await fetch('/.netlify/functions/order-update', {
       method: 'PATCH',
       headers: { 'Content-Type':'application/json', Authorization:`Bearer ${sessionStorage.getItem(AUTH_KEY)}` },
-      body: JSON.stringify({ id, status_bayaran: newStatus }),
+      body: JSON.stringify({
+        id,
+        fingerprint: order.fingerprint || '',
+        original: {
+          nama: order.nama || '',
+          telefon: order.telefon || '',
+          jenis: order.jenis || '',
+          saiz: order.saiz || '',
+          kuantiti: order.kuantiti || 1,
+          jumlah: order.jumlah || 0,
+          tarikh: order.tarikh || '',
+          status_bayaran: order.status_bayaran || '',
+        },
+        status_bayaran: newStatus,
+      }),
     });
+    const data = await res.json().catch(() => ({}));
     if (res.ok) {
       const o = allOrders.find(x => x.id === id);
       if (o) o.status_bayaran = newStatus;
       updateStats(); renderOrders();
     } else {
-      alert('Gagal kemaskini status.');
+      alert('Gagal kemaskini status: ' + (data.error || 'Cuba semula.') + (data.detail ? ' [' + data.detail + ']' : ''));
     }
   }
 

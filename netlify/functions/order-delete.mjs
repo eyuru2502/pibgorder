@@ -1,5 +1,17 @@
 import { getStore } from '@netlify/blobs';
 
+const PRICE_MAP = { CSS: 45, RNLS: 47, RNSS: 44, Muslimah: 50 };
+const SIZE_SURCHARGE = 5;
+const SURCHARGE_SIZES = new Set(['3XL', '4XL']);
+
+function getSizeSurcharge(size) {
+  return SURCHARGE_SIZES.has(String(size ?? '').trim().toUpperCase()) ? SIZE_SURCHARGE : 0;
+}
+
+function getUnitPrice(jenis, saiz) {
+  return Number(PRICE_MAP[jenis] || 0) + getSizeSurcharge(saiz);
+}
+
 function buildFingerprint(order = {}) {
   return [
     order.nama,
@@ -11,6 +23,12 @@ function buildFingerprint(order = {}) {
     order.tarikh,
     order.status_bayaran,
   ].map((value) => String(value ?? '').trim().toLowerCase()).join('|');
+}
+
+function normalizeForFingerprint(record = {}) {
+  const harga = getUnitPrice(record.jenis, record.saiz);
+  const jumlah = harga * Math.max(1, Number(record.kuantiti || 1));
+  return { ...record, harga, jumlah };
 }
 
 export default async (request) => {
@@ -49,7 +67,8 @@ export default async (request) => {
       for (const blob of blobs) {
         const existing = await store.get(blob.key, { type: 'json' });
         if (!existing) continue;
-        const existingFingerprint = buildFingerprint({ ...existing, id: existing.id || blob.key });
+        const normalized = normalizeForFingerprint({ ...existing, id: existing.id || blob.key });
+        const existingFingerprint = buildFingerprint(normalized);
         if (fingerprint && existingFingerprint === fingerprint) {
           targetKey = blob.key;
           break;

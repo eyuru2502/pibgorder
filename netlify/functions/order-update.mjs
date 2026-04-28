@@ -25,6 +25,12 @@ function buildFingerprint(order = {}) {
   ].map((value) => String(value ?? '').trim().toLowerCase()).join('|');
 }
 
+function normalizeForFingerprint(record = {}) {
+  const harga = getUnitPrice(record.jenis, record.saiz);
+  const jumlah = harga * Math.max(1, Number(record.kuantiti || 1));
+  return { ...record, harga, jumlah };
+}
+
 export default async (request) => {
   const headers = { 'Content-Type': 'application/json' };
 
@@ -59,7 +65,8 @@ export default async (request) => {
       for (const blob of blobs) {
         const record = await store.get(blob.key, { type: 'json' });
         if (!record) continue;
-        const existingFingerprint = buildFingerprint({ ...record, id: record.id || blob.key });
+        const normalized = normalizeForFingerprint({ ...record, id: record.id || blob.key });
+        const existingFingerprint = buildFingerprint(normalized);
         if (matcher && existingFingerprint === matcher) {
           targetKey = blob.key;
           existing = record;
