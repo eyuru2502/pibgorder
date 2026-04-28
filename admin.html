@@ -293,6 +293,67 @@
     font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s;
   }
   .btn-danger:hover { background: #c0392b; }
+
+  @media (max-width: 760px) {
+    .dash-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 18px 16px;
+    }
+    .filter-bar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .search-input,
+    .sort-select {
+      min-width: 0;
+      width: 100%;
+    }
+    .manual-grid,
+    .edit-grid {
+      grid-template-columns: 1fr;
+    }
+    .orders-card-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .header-actions {
+      width: 100%;
+    }
+    .header-actions .export-btn {
+      flex: 1 1 180px;
+    }
+    .card-row2,
+    .card-actions {
+      padding-left: 0;
+    }
+    .card-actions .btn,
+    .manual-actions .btn,
+    .edit-actions .btn {
+      flex: 1 1 160px;
+      text-align: center;
+      justify-content: center;
+    }
+    .confirm-btns {
+      flex-direction: column;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .dash-body { padding: 16px 12px; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .filter-btn,
+    .export-btn,
+    .btn {
+      width: 100%;
+    }
+    .card-name {
+      min-width: 0;
+      width: 100%;
+    }
+  }
 </style>
 </head>
 <body>

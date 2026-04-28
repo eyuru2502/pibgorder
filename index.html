@@ -159,6 +159,11 @@
   .info-help { margin-top:8px; font-size:12px; color:var(--text-light); text-align:center; line-height:1.5; }
 
   @media (max-width: 640px) {
+    .hero { padding: 40px 18px 56px; }
+    .price-grid { grid-template-columns: 1fr; }
+    .size-grid { grid-template-columns: repeat(2, 1fr); }
+    .form-card { padding: 22px 16px; }
+    .summary-row { flex-direction: column; align-items: flex-start; gap: 4px; }
     .toast-container { padding:12px; align-items:flex-start; }
     .toast-box {
       max-height:calc(100vh - 24px);
@@ -167,6 +172,16 @@
     }
     .toast-qr-wrap { max-width:100%; padding:10px; }
     .toast-actions > * { flex:1 1 100%; }
+  }
+
+  @media (max-width: 420px) {
+    .price-section,
+    .size-section,
+    .info-section,
+    .form-section { padding-left: 14px; padding-right: 14px; }
+    .deadline-banner { width: 100%; border-radius: 18px; padding: 12px 14px; }
+    .countdown-chip { width: 100%; justify-content: center; }
+    .size-btn { padding: 12px 4px; }
   }
 </style>
 </head>
