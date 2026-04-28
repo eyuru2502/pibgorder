@@ -41,12 +41,12 @@
     font-size: 32px; margin: 0 auto 16px;
   }
   .login-card h2 { font-family: 'Baloo 2', cursive; font-size: 22px; font-weight: 800; color: var(--green-dark); margin-bottom: 4px; }
-  .login-card > p { font-size: 13px; color: var(--text-light); margin-bottom: 28px; }
+  .login-card > p { font-size: 14px; color: var(--text-light); margin-bottom: 28px; }
   .form-group { margin-bottom: 16px; text-align: left; }
-  .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-mid); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-label { display: block; font-size: 13px; font-weight: 700; color: var(--text-mid); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
   .form-input {
     width: 100%; padding: 12px 14px; border: 2px solid #e0edea; border-radius: 10px;
-    font-family: 'Poppins'; font-size: 14px; color: var(--text-dark);
+    font-family: 'Poppins'; font-size: 15px; color: var(--text-dark);
     background: var(--gray-soft); outline: none; transition: border-color 0.2s;
   }
   .form-input:focus { border-color: var(--green-bright); background: white; }
@@ -54,12 +54,12 @@
     width: 100%; padding: 13px;
     background: linear-gradient(135deg, var(--green-mid), var(--green-bright));
     color: white; border: none; border-radius: 10px;
-    font-family: 'Poppins'; font-size: 15px; font-weight: 700;
+    font-family: 'Poppins'; font-size: 16px; font-weight: 700;
     cursor: pointer; transition: all 0.2s; margin-top: 4px;
   }
   .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(45,138,78,0.3); }
-  .login-err { color: var(--danger); font-size: 12px; margin-top: 10px; display: none; }
-  .back-link { display: block; margin-top: 16px; font-size: 12px; color: var(--text-light); text-decoration: none; }
+  .login-err { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; }
+  .back-link { display: block; margin-top: 16px; font-size: 13px; color: var(--text-light); text-decoration: none; }
   .back-link:hover { color: var(--green-mid); }
 
   /* ===== DASHBOARD ===== */
@@ -69,11 +69,11 @@
     padding: 20px 24px; display: flex; align-items: center; justify-content: space-between;
   }
   .dash-header h1 { font-family: 'Baloo 2', cursive; font-size: 20px; font-weight: 800; color: white; }
-  .dash-header p { font-size: 12px; color: rgba(255,255,255,0.7); }
+  .dash-header p { font-size: 13px; color: rgba(255,255,255,0.76); }
   .logout-btn {
     background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
     color: white; padding: 8px 16px; border-radius: 999px;
-    font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Poppins';
+    font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Poppins';
     transition: background 0.2s;
   }
   .logout-btn:hover { background: rgba(255,255,255,0.25); }
@@ -86,21 +86,21 @@
   @media (min-width: 700px) { .stats-grid { grid-template-columns: repeat(6, 1fr); } }
   .stat-card { background: white; border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); text-align: center; }
   .stat-card .stat-val { font-family: 'Baloo 2', cursive; font-size: 26px; font-weight: 800; color: var(--green-dark); line-height: 1; }
-  .stat-card .stat-label { font-size: 10px; color: var(--text-light); margin-top: 4px; font-weight: 500; }
-  .stat-card .stat-sub { font-size: 11px; font-weight: 600; color: var(--green-mid); margin-top: 2px; }
+  .stat-card .stat-label { font-size: 11px; color: var(--text-light); margin-top: 4px; font-weight: 600; }
+  .stat-card .stat-sub { font-size: 12px; font-weight: 700; color: var(--green-mid); margin-top: 2px; }
 
   /* Filter */
   .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
   .filter-btn {
     padding: 7px 14px; border-radius: 999px; border: 2px solid #e0edea;
-    background: white; font-family: 'Poppins'; font-size: 12px; font-weight: 600;
+    background: white; font-family: 'Poppins'; font-size: 13px; font-weight: 700;
     color: var(--text-mid); cursor: pointer; transition: all 0.2s;
   }
   .filter-btn.active, .filter-btn:hover { background: var(--green-bright); border-color: var(--green-bright); color: white; }
   .search-input {
     flex: 1; min-width: 140px; padding: 7px 14px;
     border: 2px solid #e0edea; border-radius: 999px;
-    font-family: 'Poppins'; font-size: 13px; outline: none; transition: border-color 0.2s;
+    font-family: 'Poppins'; font-size: 14px; outline: none; transition: border-color 0.2s;
   }
   .search-input:focus { border-color: var(--green-bright); }
   .sort-select {
@@ -110,8 +110,8 @@
     border-radius: 999px;
     background: white;
     font-family: 'Poppins';
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
     color: var(--text-mid);
     outline: none;
     cursor: pointer;
@@ -132,7 +132,7 @@
     margin-bottom: 6px;
   }
   .manual-card p {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--text-light);
     margin-bottom: 14px;
   }
@@ -148,7 +148,7 @@
   }
   .manual-field.full { grid-column: 1 / -1; }
   .manual-label {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--text-mid);
     text-transform: uppercase;
@@ -160,7 +160,7 @@
     border: 1.5px solid #cde8d8;
     border-radius: 10px;
     font-family: 'Poppins';
-    font-size: 13px;
+    font-size: 14px;
     background: white;
     outline: none;
   }
@@ -175,7 +175,7 @@
     background: var(--green-pale);
     border-radius: 10px;
     padding: 10px 12px;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--text-mid);
     margin-top: 12px;
   }
@@ -186,11 +186,11 @@
     padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;
     border-bottom: 1px solid var(--green-pale);
   }
-  .orders-card-header h3 { font-size: 14px; font-weight: 700; color: var(--green-dark); }
+  .orders-card-header h3 { font-size: 16px; font-weight: 700; color: var(--green-dark); }
   .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
   .export-btn {
     padding: 6px 12px; background: var(--green-pale); border: none;
-    border-radius: 8px; font-family: 'Poppins'; font-size: 12px; font-weight: 600;
+    border-radius: 8px; font-family: 'Poppins'; font-size: 13px; font-weight: 700;
     color: var(--green-dark); cursor: pointer; transition: background 0.2s;
   }
   .export-btn:hover { background: var(--green-light); }
@@ -205,18 +205,18 @@
   .card-row1 {
     display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;
   }
-  .card-num { font-size: 11px; font-weight: 700; color: var(--text-light); padding-top: 3px; min-width: 20px; }
-  .card-name { font-size: 15px; font-weight: 700; color: var(--text-dark); flex: 1; min-width: 120px; }
+  .card-num { font-size: 12px; font-weight: 700; color: var(--text-light); padding-top: 3px; min-width: 20px; }
+  .card-name { font-size: 17px; font-weight: 700; color: var(--text-dark); flex: 1; min-width: 120px; }
   .card-badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
   .card-row2 {
     display: flex; flex-wrap: wrap; column-gap: 14px; row-gap: 4px;
-    margin-bottom: 10px; font-size: 13px; color: var(--text-mid); padding-left: 28px;
+    margin-bottom: 10px; font-size: 14px; color: var(--text-mid); padding-left: 28px;
   }
   .card-row2 strong { color: var(--text-dark); }
   .card-actions { display: flex; gap: 6px; flex-wrap: wrap; padding-left: 28px; }
 
   /* Badges */
-  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
   .badge-css  { background: #dff0ff; color: #1a6faa; }
   .badge-rnls { background: #fff0d9; color: #a06010; }
   .badge-rnss { background: #f0e8ff; color: #5a2da0; }
@@ -229,7 +229,7 @@
   /* Buttons */
   .btn {
     padding: 6px 12px; border: none; border-radius: 8px;
-    font-family: 'Poppins'; font-size: 12px; font-weight: 600;
+    font-family: 'Poppins'; font-size: 13px; font-weight: 700;
     cursor: pointer; transition: all 0.15s; white-space: nowrap;
   }
   .btn-wa   { background: #25d366; color: white; }
@@ -249,14 +249,14 @@
 
   /* Edit mode */
   .card-edit { padding: 16px; background: #fffde7; border-top: 2px solid #ffe082; }
-  .edit-title { font-size: 13px; font-weight: 700; color: var(--green-dark); margin-bottom: 14px; }
+  .edit-title { font-size: 15px; font-weight: 700; color: var(--green-dark); margin-bottom: 14px; }
   .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
   .edit-full { grid-column: 1 / -1; }
   .edit-field { display: flex; flex-direction: column; gap: 4px; }
-  .edit-label { font-size: 11px; font-weight: 600; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.3px; }
+  .edit-label { font-size: 12px; font-weight: 700; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.3px; }
   .edit-input {
     padding: 8px 10px; border: 1.5px solid #cde8d8; border-radius: 8px;
-    font-family: 'Poppins'; font-size: 13px; background: white; outline: none;
+    font-family: 'Poppins'; font-size: 14px; background: white; outline: none;
     transition: border-color 0.15s; width: 100%;
   }
   .edit-input:focus { border-color: var(--green-bright); }
@@ -285,7 +285,7 @@
   }
   .confirm-icon { font-size: 44px; margin-bottom: 12px; }
   .confirm-box h3 { font-size: 17px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
-  .confirm-box p { font-size: 13px; color: var(--text-mid); margin-bottom: 22px; line-height: 1.5; }
+  .confirm-box p { font-size: 14px; color: var(--text-mid); margin-bottom: 22px; line-height: 1.6; }
   .confirm-btns { display: flex; gap: 10px; justify-content: center; }
   .btn-danger {
     background: var(--danger); color: white; padding: 10px 24px;
