@@ -103,6 +103,20 @@
     font-family: 'Poppins'; font-size: 13px; outline: none; transition: border-color 0.2s;
   }
   .search-input:focus { border-color: var(--green-bright); }
+  .sort-select {
+    min-width: 180px;
+    padding: 7px 12px;
+    border: 2px solid #e0edea;
+    border-radius: 999px;
+    background: white;
+    font-family: 'Poppins';
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-mid);
+    outline: none;
+    cursor: pointer;
+  }
+  .sort-select:focus { border-color: var(--green-bright); }
 
   /* Orders wrapper */
   .orders-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
@@ -289,8 +303,16 @@
       </div>
     </div>
 
-    <div class="filter-bar">
+<div class="filter-bar">
       <input class="search-input" id="search-box" type="text" placeholder="🔍 Cari nama / telefon..." oninput="renderOrders()">
+      <select class="sort-select" id="sort-order" onchange="renderOrders()">
+        <option value="newest">Tarikh Terkini</option>
+        <option value="oldest">Tarikh Terdahulu</option>
+        <option value="name-asc">Nama A-Z</option>
+        <option value="name-desc">Nama Z-A</option>
+        <option value="amount-desc">Jumlah Tertinggi</option>
+        <option value="amount-asc">Jumlah Terendah</option>
+      </select>
       <button class="filter-btn active" onclick="setFilter('all',this)">Semua</button>
       <button class="filter-btn" onclick="setFilter('CSS',this)">CSS</button>
       <button class="filter-btn" onclick="setFilter('RNLS',this)">RNLS</button>
@@ -321,6 +343,7 @@
 
   let allOrders    = [];
   let currentFilter = 'all';
+  let currentSort   = 'newest';
   let editingId    = null;
   let pendingDeleteId = null;
 
@@ -437,14 +460,35 @@
     renderOrders();
   }
 
+  function sortOrders(list) {
+    currentSort = document.getElementById('sort-order')?.value || 'newest';
+    const items = list.slice();
+    if (currentSort === 'oldest') {
+      return items.sort((a, b) => parseOrderTime(a.tarikh) - parseOrderTime(b.tarikh));
+    }
+    if (currentSort === 'name-asc') {
+      return items.sort((a, b) => String(a.nama || '').localeCompare(String(b.nama || ''), 'ms'));
+    }
+    if (currentSort === 'name-desc') {
+      return items.sort((a, b) => String(b.nama || '').localeCompare(String(a.nama || ''), 'ms'));
+    }
+    if (currentSort === 'amount-desc') {
+      return items.sort((a, b) => Number(b.jumlah || 0) - Number(a.jumlah || 0));
+    }
+    if (currentSort === 'amount-asc') {
+      return items.sort((a, b) => Number(a.jumlah || 0) - Number(b.jumlah || 0));
+    }
+    return items.sort((a, b) => parseOrderTime(b.tarikh) - parseOrderTime(a.tarikh));
+  }
+
   // === RENDER ===
   function renderOrders() {
     const q = document.getElementById('search-box').value.toLowerCase();
-    const filtered = allOrders.filter(o => {
+    const filtered = sortOrders(allOrders.filter(o => {
       const mf = currentFilter === 'all' || o.jenis === currentFilter;
       const ms = !q || o.nama?.toLowerCase().includes(q) || o.telefon?.includes(q);
       return mf && ms;
-    });
+    }));
 
     if (!filtered.length) {
       document.getElementById('orders-container').innerHTML =
