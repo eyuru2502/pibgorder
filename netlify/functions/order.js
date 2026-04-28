@@ -1,7 +1,5 @@
 import { getStore } from '@netlify/blobs';
 
-const SITE_ID = '561d73a3-614d-4db1-a790-1832bfb1dbba';
-
 export const handler = async (event) => {
   const headers = { 'Content-Type': 'application/json' };
 
@@ -21,7 +19,7 @@ export const handler = async (event) => {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Medan wajib tidak lengkap' }) };
   }
 
-  const store = getStore({ name: 'orders', siteID: SITE_ID });
+  const store = getStore('orders');
   const key = `order-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   await store.setJSON(key, { ...order, id: key });

@@ -1,7 +1,5 @@
 import { getStore } from '@netlify/blobs';
 
-const SITE_ID = '561d73a3-614d-4db1-a790-1832bfb1dbba';
-
 export const handler = async (event) => {
   const headers = { 'Content-Type': 'application/json' };
 
@@ -16,7 +14,7 @@ export const handler = async (event) => {
     return { statusCode: 401, headers, body: JSON.stringify({ error: 'Unauthorized' }) };
   }
 
-  const store = getStore({ name: 'orders', siteID: SITE_ID });
+  const store = getStore('orders');
   const { blobs } = await store.list();
 
   const orders = await Promise.all(
