@@ -40,7 +40,8 @@
   .hero h1 { font-family:'Baloo 2',cursive; font-size:clamp(28px,6vw,52px); font-weight:800; color:var(--white); line-height:1.1; margin-bottom:8px; animation:fadeUp 0.6s 0.1s both; }
   .hero h1 span { color:var(--gold); }
   .hero-sub { font-size:15px; color:rgba(255,255,255,0.8); margin-bottom:20px; animation:fadeUp 0.6s 0.2s both; }
-  .deadline-banner { display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.15); border:1.5px solid rgba(255,255,255,0.3); backdrop-filter:blur(8px); color:white; padding:10px 20px; border-radius:999px; font-size:14px; font-weight:600; animation:fadeUp 0.6s 0.3s both; }
+  .deadline-banner { display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.15); border:1.5px solid rgba(255,255,255,0.3); backdrop-filter:blur(8px); color:white; padding:10px 20px; border-radius:999px; font-size:14px; font-weight:600; animation:fadeUp 0.6s 0.3s both; flex-wrap:wrap; justify-content:center; }
+  .countdown-chip { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:rgba(255,255,255,0.16); border-radius:999px; font-size:12px; }
   @keyframes fadeUp { from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1} }
 
   .price-section { padding:32px 20px 16px; max-width:600px; margin:0 auto; }
@@ -119,18 +120,20 @@
   /* Info sections */
   .info-section { padding:24px 20px 8px; max-width:600px; margin:0 auto; }
   .info-section .section-title { font-family:'Baloo 2',cursive; font-size:18px; font-weight:700; color:var(--green-dark); margin-bottom:12px; text-align:center; }
-  .info-img { width:100%; border-radius:var(--radius); box-shadow:var(--shadow); display:block; }
+  .info-img { width:100%; border-radius:var(--radius); box-shadow:var(--shadow); display:block; min-height:120px; object-fit:cover; }
   .info-img-wrap { background:white; border-radius:var(--radius); padding:12px; box-shadow:var(--shadow); }
+  .info-help { margin-top:8px; font-size:12px; color:var(--text-light); text-align:center; line-height:1.5; }
 </style>
 </head>
 <body>
 
 <div class="hero">
   <div class="hero-badge">🟢 PIBG 2026</div>
-  <h1>Order Baju <span>PIBG</span><br>Warna Hijau</h1>
+  <h1>Order Baju <span>PIBG</span></h1>
   <p class="hero-sub">Isi borang di bawah untuk mengesahkan pesanan anda</p>
   <div class="deadline-banner">
     <span>⏰</span> Tarikh akhir: <strong>&nbsp;8 Mei 2026</strong>
+    <span class="countdown-chip" id="countdown-days">Mengira baki hari...</span>
   </div>
 </div>
 <svg viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="background:var(--green-mid);display:block;margin-bottom:-4px;">
@@ -142,8 +145,9 @@
 <div class="info-section">
   <p class="section-title">🎽 Reka Bentuk Baju PIBG 2026</p>
   <div class="info-img-wrap">
-    <img class="info-img" src="baju-pibg.jpg" alt="Reka Bentuk Baju PIBG 2026">
+    <img class="info-img" src="baju-pibg.jpg.jpeg" alt="Reka Bentuk Baju PIBG 2026">
   </div>
+  <p class="info-help">Rujuk reka bentuk baju sebenar di bawah sebelum membuat pilihan tempahan.</p>
 </div>
 
 <div class="price-section">
@@ -198,8 +202,9 @@
 <div class="info-section">
   <p class="section-title">📏 Carta Saiz Baju</p>
   <div class="info-img-wrap">
-    <img class="info-img" src="carta-saiz.jpg" alt="Carta Saiz Standard dan Muslimah">
+    <img class="info-img" src="carta-saiz.jpg.jpeg" alt="Carta Saiz Standard dan Muslimah">
   </div>
+  <p class="info-help">Gunakan carta saiz ini untuk semak ukuran sebelum menghantar pesanan.</p>
 </div>
 
 <div class="form-section">
@@ -315,6 +320,17 @@
     document.getElementById('closed-overlay').classList.add('show');
     document.getElementById('closed-container').classList.add('show');
   }
+
+  function updateCountdownDays() {
+    const el = document.getElementById('countdown-days');
+    if (!el) return;
+    const deadline = new Date('2026-05-08T23:59:59+08:00');
+    const now = new Date();
+    const daysLeft = Math.max(0, Math.ceil((deadline - now) / 86400000));
+    el.textContent = daysLeft > 0 ? `Baki ${daysLeft} hari lagi` : 'Tempahan telah ditutup';
+  }
+
+  updateCountdownDays();
 
   let selectedType = null, selectedPrice = 0, selectedSize = null, qty = 1;
 
