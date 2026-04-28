@@ -373,7 +373,7 @@
       });
       if (res.status === 401) { doLogout(); return; }
       const data = await res.json();
-      allOrders = data.orders || [];
+      allOrders = (data.orders || []).slice().sort((a, b) => parseOrderTime(b.tarikh) - parseOrderTime(a.tarikh));
       updateStats();
       renderOrders();
     } catch {
@@ -389,6 +389,32 @@
   function csvCell(v) {
     const t = String(v ?? '');
     return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+  }
+
+  function parseOrderTime(value) {
+    const raw = String(value ?? '').trim();
+    if (!raw) return 0;
+
+    const direct = Date.parse(raw);
+    if (!Number.isNaN(direct)) return direct;
+
+    const match = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:,\s*(\d{1,2})[:.](\d{2})(?::(\d{2}))?\s*(AM|PM)?)?$/i);
+    if (!match) return 0;
+
+    let [, day, month, year, hour = '0', minute = '0', second = '0', meridiem = ''] = match;
+    let hours = Number(hour);
+    const upperMeridiem = meridiem.toUpperCase();
+    if (upperMeridiem === 'PM' && hours < 12) hours += 12;
+    if (upperMeridiem === 'AM' && hours === 12) hours = 0;
+
+    return new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      hours,
+      Number(minute),
+      Number(second)
+    ).getTime();
   }
 
   // === STATS ===
