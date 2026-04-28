@@ -1,6 +1,6 @@
-import { getStore } from '@netlify/blobs';
+const { getStore } = require('@netlify/blobs');
 
-export const handler = async (event) => {
+exports.handler = async (event) => {
   const headers = { 'Content-Type': 'application/json' };
 
   if (event.httpMethod !== 'GET') {
@@ -14,21 +14,29 @@ export const handler = async (event) => {
     return { statusCode: 401, headers, body: JSON.stringify({ error: 'Unauthorized' }) };
   }
 
-  const store = getStore('orders');
-  const { blobs } = await store.list();
+  try {
+    const store = getStore('orders');
+    const { blobs } = await store.list();
 
-  const orders = await Promise.all(
-    blobs.map((b) => store.get(b.key, { type: 'json' }))
-  );
+    const orders = await Promise.all(
+      blobs.map((b) => store.get(b.key, { type: 'json' }))
+    );
 
-  orders.sort((a, b) => {
-    if (!a || !b) return 0;
-    return new Date(b.tarikh || 0) - new Date(a.tarikh || 0);
-  });
+    orders.sort((a, b) => {
+      if (!a || !b) return 0;
+      return new Date(b.tarikh || 0) - new Date(a.tarikh || 0);
+    });
 
-  return {
-    statusCode: 200,
-    headers,
-    body: JSON.stringify({ orders: orders.filter(Boolean) }),
-  };
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({ orders: orders.filter(Boolean) }),
+    };
+  } catch (err) {
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: 'Gagal muatkan pesanan', detail: err.message }),
+    };
+  }
 };
