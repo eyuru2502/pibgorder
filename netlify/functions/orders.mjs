@@ -13,8 +13,17 @@ function buildFingerprint(order = {}) {
   ].map((value) => String(value ?? '').trim().toLowerCase()).join('|');
 }
 
-function parseOrderTime(value) {
-  const raw = String(value ?? '').trim();
+function extractCreatedAtMs(order = {}) {
+  const fromField = Number(order.createdAtMs || 0);
+  if (fromField > 0) return fromField;
+
+  const idMatch = String(order.id || '').match(/^order-(\d{10,})-/);
+  if (idMatch) return Number(idMatch[1]);
+
+  const iso = Date.parse(String(order.createdAtIso || '').trim());
+  if (!Number.isNaN(iso)) return iso;
+
+  const raw = String(order.tarikh ?? '').trim();
   if (!raw) return 0;
 
   const match = raw.match(
@@ -64,14 +73,18 @@ export default async (request) => {
       blobs.map(async (b) => {
         const order = await store.get(b.key, { type: 'json' });
         if (!order) return null;
-        const normalized = { ...order, id: order.id || b.key };
+        const normalized = {
+          ...order,
+          id: order.id || b.key,
+          createdAtMs: extractCreatedAtMs({ ...order, id: order.id || b.key }),
+        };
         return { ...normalized, fingerprint: buildFingerprint(normalized) };
       })
     );
 
     orders.sort((a, b) => {
       if (!a || !b) return 0;
-      return parseOrderTime(b.tarikh) - parseOrderTime(a.tarikh);
+      return extractCreatedAtMs(b) - extractCreatedAtMs(a);
     });
 
     return new Response(JSON.stringify({ orders: orders.filter(Boolean) }), { status: 200, headers });

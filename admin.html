@@ -396,7 +396,7 @@
       });
       if (res.status === 401) { doLogout(); return; }
       const data = await res.json();
-      allOrders = (data.orders || []).slice().sort((a, b) => parseOrderTime(b.tarikh) - parseOrderTime(a.tarikh));
+      allOrders = (data.orders || []).slice().sort((a, b) => getOrderCreatedAt(b) - getOrderCreatedAt(a));
       updateStats();
       renderOrders();
     } catch {
@@ -441,6 +441,19 @@
     return 0;
   }
 
+  function getOrderCreatedAt(order) {
+    const fromField = Number(order?.createdAtMs || 0);
+    if (fromField > 0) return fromField;
+
+    const idMatch = String(order?.id || '').match(/^order-(\d{10,})-/);
+    if (idMatch) return Number(idMatch[1]);
+
+    const iso = Date.parse(String(order?.createdAtIso || '').trim());
+    if (!Number.isNaN(iso)) return iso;
+
+    return parseOrderTime(order?.tarikh);
+  }
+
   // === STATS ===
   function updateStats() {
     const paid = allOrders.filter(o => o.status_bayaran === 'diterima');
@@ -465,7 +478,7 @@
     currentSort = document.getElementById('sort-order')?.value || 'newest';
     const items = list.slice();
     if (currentSort === 'oldest') {
-      return items.sort((a, b) => parseOrderTime(a.tarikh) - parseOrderTime(b.tarikh));
+      return items.sort((a, b) => getOrderCreatedAt(a) - getOrderCreatedAt(b));
     }
     if (currentSort === 'name-asc') {
       return items.sort((a, b) => String(a.nama || '').localeCompare(String(b.nama || ''), 'ms'));
@@ -479,7 +492,7 @@
     if (currentSort === 'amount-asc') {
       return items.sort((a, b) => Number(a.jumlah || 0) - Number(b.jumlah || 0));
     }
-    return items.sort((a, b) => parseOrderTime(b.tarikh) - parseOrderTime(a.tarikh));
+    return items.sort((a, b) => getOrderCreatedAt(b) - getOrderCreatedAt(a));
   }
 
   // === RENDER ===

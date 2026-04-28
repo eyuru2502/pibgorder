@@ -21,8 +21,14 @@ export default async (request) => {
 
   try {
     const store = getStore('pibg-orders');
-    const key = `order-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    await store.setJSON(key, { ...order, id: key });
+    const createdAtMs = Date.now();
+    const key = `order-${createdAtMs}-${Math.random().toString(36).slice(2, 8)}`;
+    await store.setJSON(key, {
+      ...order,
+      id: key,
+      createdAtMs,
+      createdAtIso: new Date(createdAtMs).toISOString(),
+    });
 
     return new Response(JSON.stringify({ success: true, id: key }), { status: 200, headers });
   } catch (err) {
