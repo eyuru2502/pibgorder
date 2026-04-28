@@ -9,8 +9,8 @@ export default async (request) => {
 
   const auth = request.headers.get('authorization') || '';
   const token = auth.replace(/^Bearer\s+/i, '');
-
-  if (token !== 'pibg2026') {
+  const expected = process.env.AUTH_TOKEN;
+  if (!expected || token !== expected) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers });
   }
 

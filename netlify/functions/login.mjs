@@ -9,13 +9,12 @@ export default async (request) => {
     const { username, password } = await request.json();
 
     const adminUser = process.env.ADMIN_USER || 'admin';
-    const adminPass = process.env.ADMIN_PASSWORD || 'pibg2026';
+    const adminPass = process.env.ADMIN_PASSWORD;
+    const token = process.env.AUTH_TOKEN;
 
-    if (username !== adminUser || password !== adminPass) {
+    if (!adminPass || !token || username !== adminUser || password !== adminPass) {
       return new Response(JSON.stringify({ error: 'Invalid credentials' }), { status: 401, headers });
     }
-
-    const token = process.env.AUTH_TOKEN || 'pibg2026';
 
     return new Response(JSON.stringify({ token }), { status: 200, headers });
   } catch (err) {
