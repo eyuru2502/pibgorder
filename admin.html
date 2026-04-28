@@ -406,6 +406,7 @@
       <div class="stat-card">
         <div class="stat-val" id="stat-total">—</div>
         <div class="stat-label">Jumlah Pesanan</div>
+        <div class="stat-sub" id="stat-scope">Semua kategori</div>
       </div>
       <div class="stat-card">
         <div class="stat-val" id="stat-qty">—</div>
@@ -655,14 +656,25 @@
     return parseOrderTime(order?.tarikh);
   }
 
+  function getScopedOrders() {
+    if (currentFilter === 'all') return allOrders.slice();
+    return allOrders.filter((order) => order?.jenis === currentFilter);
+  }
+
+  function getScopeLabel() {
+    return currentFilter === 'all' ? 'Semua kategori' : `Kategori ${currentFilter}`;
+  }
+
   // === STATS ===
   function updateStats() {
-    const paid = allOrders.filter(o => o.status_bayaran === 'diterima');
-    document.getElementById('stat-total').textContent    = allOrders.length;
-    document.getElementById('stat-qty').textContent      = allOrders.reduce((a,o) => a+(o.kuantiti||0), 0);
-    document.getElementById('stat-rev').textContent      = allOrders.reduce((a,o) => a+(o.jumlah||0), 0);
+    const scopedOrders = getScopedOrders();
+    const paid = scopedOrders.filter(o => o.status_bayaran === 'diterima');
+    document.getElementById('stat-total').textContent    = scopedOrders.length;
+    document.getElementById('stat-qty').textContent      = scopedOrders.reduce((a,o) => a+(o.kuantiti||0), 0);
+    document.getElementById('stat-rev').textContent      = scopedOrders.reduce((a,o) => a+(o.jumlah||0), 0);
     document.getElementById('stat-bil-bayar').textContent = paid.length;
     document.getElementById('stat-bayaran').textContent  = 'RM ' + paid.reduce((a,o) => a+(o.jumlah||0), 0);
+    document.getElementById('stat-scope').textContent = getScopeLabel();
     const days = Math.max(0, Math.ceil((new Date('2026-05-08') - new Date()) / 86400000));
     document.getElementById('stat-pending').textContent  = days;
   }
@@ -672,6 +684,7 @@
     currentFilter = f;
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
+    updateStats();
     renderOrders();
   }
 
