@@ -106,7 +106,8 @@
   .dash-body { padding: 20px 16px; max-width: 900px; margin: 0 auto; }
 
   .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-  @media (min-width: 600px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (min-width: 600px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 900px) { .stats-grid { grid-template-columns: repeat(6, 1fr); } }
   .stat-card {
     background: white; border-radius: var(--radius); padding: 16px;
     box-shadow: var(--shadow); text-align: center;
@@ -181,6 +182,26 @@
     animation: spin 0.8s linear infinite; margin: 0 auto 12px;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Payment status badges */
+  .badge-paid { background:#d4edda; color:#155724; }
+  .badge-unpaid { background:#f8d7da; color:#721c24; }
+
+  /* Action buttons */
+  .btn-act { display:block; width:100%; padding:5px 8px; border:none; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer; font-family:'Poppins'; transition:all 0.15s; margin-bottom:3px; text-align:center; white-space:nowrap; }
+  .btn-wa { background:#25d366; color:white; }
+  .btn-wa:hover { background:#128c7e; }
+  .btn-wa-r { background:#34b7f1; color:white; }
+  .btn-wa-r:hover { background:#0077b6; }
+  .btn-edit { background:var(--green-pale); color:var(--green-dark); }
+  .btn-edit:hover { background:var(--green-light); }
+  .btn-save { background:var(--green-bright); color:white; }
+  .btn-save:hover { background:var(--green-mid); }
+  .btn-cancel { background:#e9ecef; color:#495057; }
+  .btn-cancel:hover { background:#dee2e6; }
+
+  /* Inline edit inputs */
+  .edit-input { width:100%; padding:4px 8px; border:1.5px solid var(--green-bright); border-radius:6px; font-family:'Poppins'; font-size:12px; background:white; box-sizing:border-box; }
 </style>
 </head>
 <body>
@@ -235,6 +256,14 @@
         <div class="stat-label">Hari Berbaki</div>
         <div class="stat-sub">Tutup 8 Mei 2026</div>
       </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-bil-bayar">—</div>
+        <div class="stat-label">Sudah Bayar</div>
+      </div>
+      <div class="stat-card" style="border:2px solid var(--green-bright)">
+        <div class="stat-val" id="stat-bayaran" style="font-size:20px">—</div>
+        <div class="stat-label">Bayaran Diterima (RM)</div>
+      </div>
     </div>
 
     <!-- Filter + Search -->
@@ -269,7 +298,6 @@
     const u = document.getElementById('username').value.trim();
     const p = document.getElementById('password').value;
     if (u !== ADMIN_USER || !p) return showLoginError();
-
     sessionStorage.setItem(AUTH_KEY, p);
     const ok = await loadOrders();
     if (ok) showDashboard(false);
@@ -294,21 +322,19 @@
 
   if (sessionStorage.getItem(AUTH_KEY)) showDashboard();
 
-  // === DATA ===
+  // === STATE ===
   let allOrders = [];
   let currentFilter = 'all';
+  let editingId = null;
 
+  // === DATA ===
   async function loadOrders() {
     try {
       const token = sessionStorage.getItem(AUTH_KEY);
       const res = await fetch('/.netlify/functions/orders', {
         headers: { Authorization: `Bearer ${token || ''}` },
       });
-      if (res.status === 401) {
-        showLoginError();
-        doLogout();
-        return false;
-      }
+      if (res.status === 401) { showLoginError(); doLogout(); return false; }
       const data = await res.json();
       allOrders = data.orders || [];
       updateStats();
@@ -323,32 +349,36 @@
 
   function escapeHtml(value) {
     return String(value ?? '—').replace(/[&<>"']/g, ch => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     }[ch]));
   }
 
   function csvCell(value) {
     const text = String(value ?? '');
-    return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    return /[",
+]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
   }
 
+  // === STATS ===
   function updateStats() {
     const total = allOrders.length;
-    const qty = allOrders.reduce((a, o) => a + (o.kuantiti || 0), 0);
-    const rev = allOrders.reduce((a, o) => a + (o.jumlah || 0), 0);
+    const qty   = allOrders.reduce((a, o) => a + (o.kuantiti || 0), 0);
+    const rev   = allOrders.reduce((a, o) => a + (o.jumlah || 0), 0);
+    const paidOrders = allOrders.filter(o => o.status_bayaran === 'diterima');
+    const bilBayar = paidOrders.length;
+    const bayaran  = paidOrders.reduce((a, o) => a + (o.jumlah || 0), 0);
     const deadline = new Date('2026-05-08');
-    const today = new Date();
-    const days = Math.max(0, Math.ceil((deadline - today) / 86400000));
-    document.getElementById('stat-total').textContent = total;
-    document.getElementById('stat-qty').textContent = qty;
-    document.getElementById('stat-rev').textContent = rev;
-    document.getElementById('stat-pending').textContent = days;
+    const today    = new Date();
+    const days     = Math.max(0, Math.ceil((deadline - today) / 86400000));
+    document.getElementById('stat-total').textContent    = total;
+    document.getElementById('stat-qty').textContent      = qty;
+    document.getElementById('stat-rev').textContent      = rev;
+    document.getElementById('stat-pending').textContent  = days;
+    document.getElementById('stat-bil-bayar').textContent = bilBayar;
+    document.getElementById('stat-bayaran').textContent  = 'RM ' + bayaran;
   }
 
+  // === FILTER ===
   function setFilter(f, el) {
     currentFilter = f;
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -356,9 +386,10 @@
     renderTable();
   }
 
+  // === RENDER TABLE ===
   function renderTable() {
     const q = document.getElementById('search-box').value.toLowerCase();
-    let filtered = allOrders.filter(o => {
+    const filtered = allOrders.filter(o => {
       const matchFilter = currentFilter === 'all' || o.jenis === currentFilter;
       const matchSearch = !q || o.nama?.toLowerCase().includes(q) || o.telefon?.includes(q);
       return matchFilter && matchSearch;
@@ -371,44 +402,178 @@
     }
 
     const badgeClass = j => ({ CSS:'badge-css', RNLS:'badge-rnls', RNSS:'badge-rnss', Muslimah:'badge-mus' }[j] || '');
-    const rows = filtered.map((o, i) => `
-      <tr>
+    const SAIZ = ['XS','S','M','L','XL','XXL','3XL'];
+    const JENIS = ['CSS','RNLS','RNSS','Muslimah'];
+
+    const rows = filtered.map((o, i) => {
+      const isPaid    = o.status_bayaran === 'diterima';
+      const isEditing = editingId === o.id;
+      const eid       = escapeHtml(o.id || '');
+
+      if (isEditing) {
+        return `<tr style="background:#fffde7">
+          <td style="font-weight:600;color:var(--text-light)">${i+1}</td>
+          <td><input class="edit-input" id="edit-nama"     value="${escapeHtml(o.nama)}"></td>
+          <td><input class="edit-input" id="edit-telefon"  value="${escapeHtml(o.telefon)}" style="width:120px"></td>
+          <td><select class="edit-input" id="edit-jenis">${JENIS.map(j=>`<option value="${j}" ${o.jenis===j?'selected':''}>${j}</option>`).join('')}</select></td>
+          <td><select class="edit-input" id="edit-saiz">${SAIZ.map(s=>`<option value="${s}" ${o.saiz===s?'selected':''}>${s}</option>`).join('')}</select></td>
+          <td><input class="edit-input" id="edit-kuantiti" type="number" min="1" value="${o.kuantiti||1}" style="width:55px"></td>
+          <td><input class="edit-input" id="edit-jumlah"   type="number" value="${o.jumlah||0}" style="width:70px"></td>
+          <td style="font-size:11px;color:var(--text-light)">${escapeHtml(o.tarikh)}</td>
+          <td><select class="edit-input" id="edit-status" style="width:120px">
+            <option value="belum" ${!isPaid?'selected':''}>Belum Bayar</option>
+            <option value="diterima" ${isPaid?'selected':''}>Sudah Bayar</option>
+          </select></td>
+          <td>—</td>
+          <td>
+            <button class="btn-act btn-save"   onclick="saveEdit('${eid}')">💾 Simpan</button>
+            <button class="btn-act btn-cancel" onclick="cancelEdit()">✕ Batal</button>
+          </td>
+        </tr>`;
+      }
+
+      return `<tr>
         <td style="font-weight:600;color:var(--text-light)">${i+1}</td>
         <td><strong>${escapeHtml(o.nama)}</strong></td>
         <td>${escapeHtml(o.telefon)}</td>
-        <td>${escapeHtml(o.kelas)}</td>
         <td><span class="badge ${badgeClass(o.jenis)}">${escapeHtml(o.jenis)}</span></td>
         <td><strong>${escapeHtml(o.saiz)}</strong></td>
         <td style="text-align:center">${escapeHtml(o.kuantiti || 1)}</td>
         <td style="font-weight:700;color:var(--green-dark)">RM ${escapeHtml(o.jumlah || 0)}</td>
         <td style="font-size:11px;color:var(--text-light)">${escapeHtml(o.tarikh)}</td>
-      </tr>
-    `).join('');
+        <td>
+          <span class="badge ${isPaid?'badge-paid':'badge-unpaid'}"
+            style="cursor:pointer;user-select:none"
+            onclick="toggleStatus('${eid}','${o.status_bayaran||'belum'}')">
+            ${isPaid ? '✓ Sudah Bayar' : '✗ Belum Bayar'}
+          </span>
+        </td>
+        <td>
+          <button class="btn-act btn-wa"  onclick="openWA('${eid}','bayar')"    title="Sahkan Bayaran">💰 Bayar</button>
+          <button class="btn-act btn-wa-r" onclick="openWA('${eid}','peringat')" title="Peringatan Bayaran">⏰ Ingatkan</button>
+        </td>
+        <td>
+          <button class="btn-act btn-edit" onclick="startEdit('${eid}')">✏️ Edit</button>
+        </td>
+      </tr>`;
+    }).join('');
 
     document.getElementById('table-container').innerHTML = `
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>#</th><th>Nama</th><th>Telefon</th><th>Kelas</th>
+              <th>#</th><th>Nama</th><th>Telefon</th>
               <th>Jenis</th><th>Saiz</th><th>Qty</th><th>Jumlah</th><th>Tarikh</th>
+              <th>Status Bayaran</th><th>WhatsApp</th><th>Tindakan</th>
             </tr>
           </thead>
           <tbody>${rows}</tbody>
         </table>
-      </div>
-    `;
+      </div>`;
   }
 
+  // === STATUS BAYARAN ===
+  async function toggleStatus(id, currentStatus) {
+    const newStatus = currentStatus === 'diterima' ? 'belum' : 'diterima';
+    const token = sessionStorage.getItem(AUTH_KEY);
+    const res = await fetch('/.netlify/functions/order-update', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ id, status_bayaran: newStatus }),
+    });
+    if (res.ok) {
+      const order = allOrders.find(o => o.id === id);
+      if (order) order.status_bayaran = newStatus;
+      updateStats();
+      renderTable();
+    } else {
+      alert('Gagal kemaskini status. Cuba semula.');
+    }
+  }
+
+  // === WHATSAPP ===
+  function openWA(id, jenis) {
+    const o = allOrders.find(ord => ord.id === id);
+    if (!o) return;
+    const raw     = (o.telefon || '').replace(/[^0-9]/g, '');
+    const waPhone = raw.startsWith('0') ? '60' + raw.slice(1) : raw;
+    const detail  = `${o.jenis} | Saiz: ${o.saiz} | Qty: ${o.kuantiti || 1} | RM ${o.jumlah}`;
+    let msg;
+    if (jenis === 'bayar') {
+      msg = `Assalamualaikum ${o.nama},
+
+✅ Bayaran baju PIBG anda telah *DITERIMA*.
+
+🎽 ${detail}
+
+Terima kasih! 🙏 — Admin PIBG SK Kiandongo`;
+    } else {
+      msg = `Assalamualaikum ${o.nama},
+
+⏳ Peringatan: Bayaran baju PIBG anda *BELUM DITERIMA*.
+
+🎽 ${detail}
+
+Sila buat bayaran melalui QR Maybank sebelum 8 Mei 2026. TQ 🙏`;
+    }
+    window.open('https://wa.me/' + waPhone + '?text=' + encodeURIComponent(msg), '_blank');
+  }
+
+  // === EDIT ===
+  function startEdit(id) {
+    editingId = id;
+    renderTable();
+    setTimeout(() => {
+      const el = document.getElementById('edit-nama');
+      if (el) el.focus();
+    }, 50);
+  }
+
+  function cancelEdit() {
+    editingId = null;
+    renderTable();
+  }
+
+  async function saveEdit(id) {
+    const token = sessionStorage.getItem(AUTH_KEY);
+    const updates = {
+      nama:          document.getElementById('edit-nama').value.trim(),
+      telefon:       document.getElementById('edit-telefon').value.trim(),
+      jenis:         document.getElementById('edit-jenis').value,
+      saiz:          document.getElementById('edit-saiz').value,
+      kuantiti:      parseInt(document.getElementById('edit-kuantiti').value) || 1,
+      jumlah:        parseFloat(document.getElementById('edit-jumlah').value) || 0,
+      status_bayaran: document.getElementById('edit-status').value,
+    };
+    const res = await fetch('/.netlify/functions/order-update', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ id, ...updates }),
+    });
+    if (res.ok) {
+      const order = allOrders.find(o => o.id === id);
+      if (order) Object.assign(order, updates);
+      editingId = null;
+      updateStats();
+      renderTable();
+    } else {
+      alert('Gagal menyimpan. Cuba semula.');
+    }
+  }
+
+  // === CSV EXPORT ===
   function exportCSV() {
-    const headers = ['Bil','Nama','Telefon','Kelas','Jenis','Saiz','Kuantiti','Jumlah (RM)','Tarikh'];
+    const headers = ['Bil','Nama','Telefon','Jenis','Saiz','Kuantiti','Jumlah (RM)','Tarikh','Status Bayaran'];
     const rows = allOrders.map((o, i) =>
-      [i+1, o.nama, o.telefon, o.kelas, o.jenis, o.saiz, o.kuantiti, o.jumlah, o.tarikh].map(csvCell).join(',')
+      [i+1, o.nama, o.telefon, o.jenis, o.saiz, o.kuantiti, o.jumlah, o.tarikh,
+       o.status_bayaran === 'diterima' ? 'Sudah Bayar' : 'Belum Bayar'].map(csvCell).join(',')
     );
-    const csv = [headers.join(','), ...rows].join('\n');
+    const csv  = [headers.join(','), ...rows].join('
+');
     const blob = new Blob([csv], { type: 'text/csv' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
     a.download = 'pesanan_baju_pibg_2026.csv';
     a.click();
   }
