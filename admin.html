@@ -291,17 +291,25 @@
 
 <script>
   // === AUTH ===
-  const ADMIN_USER = 'admin';
   const AUTH_KEY = 'pibg_admin_token';
 
   async function doLogin() {
     const u = document.getElementById('username').value.trim();
     const p = document.getElementById('password').value;
-    if (u !== ADMIN_USER || !p) return showLoginError();
-    sessionStorage.setItem(AUTH_KEY, p);
-    const ok = await loadOrders();
-    if (ok) showDashboard(false);
-    else sessionStorage.removeItem(AUTH_KEY);
+    if (!u || !p) return showLoginError();
+    try {
+      const res = await fetch('/.netlify/functions/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u, password: p }),
+      });
+      if (!res.ok) return showLoginError();
+      const data = await res.json();
+      sessionStorage.setItem(AUTH_KEY, data.token);
+      showDashboard(false);
+    } catch {
+      showLoginError();
+    }
   }
 
   function doLogout() {
