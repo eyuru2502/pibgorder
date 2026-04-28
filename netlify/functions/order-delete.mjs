@@ -1,17 +1,5 @@
 import { getStore } from '@netlify/blobs';
-
-function buildFingerprint(order = {}) {
-  return [
-    order.nama,
-    order.telefon,
-    order.jenis,
-    order.saiz,
-    order.kuantiti,
-    order.jumlah,
-    order.tarikh,
-    order.status_bayaran,
-  ].map((value) => String(value ?? '').trim().toLowerCase()).join('|');
-}
+import { buildFingerprint, requireAuth } from './_lib/orders.mjs';
 
 export default async (request) => {
   const headers = { 'Content-Type': 'application/json' };
@@ -20,10 +8,8 @@ export default async (request) => {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers });
   }
 
-  const auth = request.headers.get('authorization') || '';
-  const token = auth.replace(/^Bearer\s+/i, '');
-  const expected = process.env.AUTH_TOKEN;
-  if (!expected || token !== expected) {
+  const session = requireAuth(request);
+  if (!session) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers });
   }
 
@@ -31,12 +17,11 @@ export default async (request) => {
   try {
     body = await request.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers });
+    return new Response(JSON.stringify({ error: 'Permintaan tidak sah' }), { status: 400, headers });
   }
 
   try {
     const store = getStore('pibg-orders');
-    const { blobs } = await store.list();
 
     let targetKey = body.id ? String(body.id) : '';
     if (targetKey) {
@@ -45,6 +30,7 @@ export default async (request) => {
     }
 
     if (!targetKey) {
+      const { blobs } = await store.list();
       const fingerprint = body.fingerprint || buildFingerprint(body);
       for (const blob of blobs) {
         const existing = await store.get(blob.key, { type: 'json' });
@@ -64,6 +50,7 @@ export default async (request) => {
     await store.delete(targetKey);
     return new Response(JSON.stringify({ success: true }), { status: 200, headers });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'Gagal padam', detail: err.message }), { status: 500, headers });
+    console.error('order-delete failed', err);
+    return new Response(JSON.stringify({ error: 'Gagal padam' }), { status: 500, headers });
   }
 };
