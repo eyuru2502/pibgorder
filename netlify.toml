@@ -3,6 +3,9 @@
   publish = "."
   functions = "netlify/functions"
 
+[build.environment]
+  TZ = "Asia/Kuala_Lumpur"
+
 [[headers]]
   for = "/*"
   [headers.values]
