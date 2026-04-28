@@ -1,5 +1,18 @@
 import { getStore } from '@netlify/blobs';
 
+function buildFingerprint(order = {}) {
+  return [
+    order.nama,
+    order.telefon,
+    order.jenis,
+    order.saiz,
+    order.kuantiti,
+    order.jumlah,
+    order.tarikh,
+    order.status_bayaran,
+  ].map((value) => String(value ?? '').trim().toLowerCase()).join('|');
+}
+
 export default async (request) => {
   const headers = { 'Content-Type': 'application/json' };
 
@@ -21,14 +34,34 @@ export default async (request) => {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers });
   }
 
-  const { id } = body;
-  if (!id) {
-    return new Response(JSON.stringify({ error: 'ID diperlukan' }), { status: 400, headers });
-  }
-
   try {
     const store = getStore('pibg-orders');
-    await store.delete(id);
+    const { blobs } = await store.list();
+
+    let targetKey = body.id ? String(body.id) : '';
+    if (targetKey) {
+      const direct = await store.get(targetKey, { type: 'json' });
+      if (!direct) targetKey = '';
+    }
+
+    if (!targetKey) {
+      const fingerprint = body.fingerprint || buildFingerprint(body);
+      for (const blob of blobs) {
+        const existing = await store.get(blob.key, { type: 'json' });
+        if (!existing) continue;
+        const existingFingerprint = buildFingerprint({ ...existing, id: existing.id || blob.key });
+        if (fingerprint && existingFingerprint === fingerprint) {
+          targetKey = blob.key;
+          break;
+        }
+      }
+    }
+
+    if (!targetKey) {
+      return new Response(JSON.stringify({ error: 'Pesanan tidak dijumpai' }), { status: 404, headers });
+    }
+
+    await store.delete(targetKey);
     return new Response(JSON.stringify({ success: true }), { status: 200, headers });
   } catch (err) {
     return new Response(JSON.stringify({ error: 'Gagal padam', detail: err.message }), { status: 500, headers });

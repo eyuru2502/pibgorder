@@ -1,5 +1,18 @@
 import { getStore } from '@netlify/blobs';
 
+function buildFingerprint(order = {}) {
+  return [
+    order.nama,
+    order.telefon,
+    order.jenis,
+    order.saiz,
+    order.kuantiti,
+    order.jumlah,
+    order.tarikh,
+    order.status_bayaran,
+  ].map((value) => String(value ?? '').trim().toLowerCase()).join('|');
+}
+
 export default async (request) => {
   const headers = { 'Content-Type': 'application/json' };
 
@@ -19,7 +32,12 @@ export default async (request) => {
     const { blobs } = await store.list();
 
     const orders = await Promise.all(
-      blobs.map((b) => store.get(b.key, { type: 'json' }))
+      blobs.map(async (b) => {
+        const order = await store.get(b.key, { type: 'json' });
+        if (!order) return null;
+        const normalized = { ...order, id: order.id || b.key };
+        return { ...normalized, fingerprint: buildFingerprint(normalized) };
+      })
     );
 
     orders.sort((a, b) => {

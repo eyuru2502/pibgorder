@@ -1,5 +1,18 @@
 import { getStore } from '@netlify/blobs';
 
+function buildFingerprint(order = {}) {
+  return [
+    order.nama,
+    order.telefon,
+    order.jenis,
+    order.saiz,
+    order.kuantiti,
+    order.jumlah,
+    order.tarikh,
+    order.status_bayaran,
+  ].map((value) => String(value ?? '').trim().toLowerCase()).join('|');
+}
+
 export default async (request) => {
   const headers = { 'Content-Type': 'application/json' };
 
@@ -21,18 +34,32 @@ export default async (request) => {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers });
   }
 
-  const { id, ...updates } = body;
-  if (!id) {
-    return new Response(JSON.stringify({ error: 'ID diperlukan' }), { status: 400, headers });
-  }
+  const { id, fingerprint, ...updates } = body;
 
   try {
     const store = getStore('pibg-orders');
-    const existing = await store.get(id, { type: 'json' });
+    let targetKey = id ? String(id) : '';
+    let existing = targetKey ? await store.get(targetKey, { type: 'json' }) : null;
+
+    if (!existing) {
+      const { blobs } = await store.list();
+      const matcher = fingerprint || buildFingerprint(body);
+      for (const blob of blobs) {
+        const record = await store.get(blob.key, { type: 'json' });
+        if (!record) continue;
+        const existingFingerprint = buildFingerprint({ ...record, id: record.id || blob.key });
+        if (matcher && existingFingerprint === matcher) {
+          targetKey = blob.key;
+          existing = record;
+          break;
+        }
+      }
+    }
+
     if (!existing) {
       return new Response(JSON.stringify({ error: 'Pesanan tidak dijumpai' }), { status: 404, headers });
     }
-    await store.setJSON(id, { ...existing, ...updates });
+    await store.setJSON(targetKey, { ...existing, ...updates, id: existing.id || targetKey });
     return new Response(JSON.stringify({ success: true }), { status: 200, headers });
   } catch (err) {
     return new Response(JSON.stringify({ error: 'Gagal kemaskini', detail: err.message }), { status: 500, headers });

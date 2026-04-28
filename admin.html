@@ -428,9 +428,22 @@
 
     const html = filtered.map((o, i) => {
       const isPaid = o.status_bayaran === 'diterima';
-      const eid    = esc(o.id || '');
+      const oid    = String(o.id || '');
+      const eid    = esc(oid);
+      const payload = encodeURIComponent(JSON.stringify({
+        id: oid,
+        fingerprint: o.fingerprint || '',
+        nama: o.nama || '',
+        telefon: o.telefon || '',
+        jenis: o.jenis || '',
+        saiz: o.saiz || '',
+        kuantiti: o.kuantiti || 1,
+        jumlah: o.jumlah || 0,
+        tarikh: o.tarikh || '',
+        status_bayaran: o.status_bayaran || '',
+      }));
 
-      if (editingId === o.id) {
+      if (editingId === oid) {
         return `<div class="order-card">
           <div class="card-edit">
             <div class="edit-title">✏️ Edit Pesanan #${i+1} — ${esc(o.nama)}</div>
@@ -507,7 +520,7 @@
             <button class="btn btn-wa"   onclick="openWA('${eid}','bayar')">💰 Sahkan Bayaran</button>
             <button class="btn btn-war"  onclick="openWA('${eid}','peringat')">⏰ Peringatan</button>
             <button class="btn btn-edit" onclick="startEdit('${eid}')">✏️ Edit</button>
-            <button class="btn btn-del"  onclick="confirmDelete('${eid}','${esc(o.nama)}')">🗑️ Padam</button>
+            <button class="btn btn-del"  onclick="confirmDelete('${payload}','${esc(o.nama || 'rekod ini')}')">🗑️ Padam</button>
           </div>
         </div>
       </div>`;
@@ -585,8 +598,12 @@
   }
 
   // === DELETE ===
-  function confirmDelete(id, nama) {
-    pendingDeleteId = id;
+  function confirmDelete(encodedOrder, nama) {
+    try {
+      pendingDeleteId = JSON.parse(decodeURIComponent(encodedOrder));
+    } catch {
+      pendingDeleteId = null;
+    }
     document.getElementById('confirm-msg').textContent =
       `Padam pesanan daripada "${nama}"? Tindakan ini tidak boleh dibatalkan.`;
     document.getElementById('confirm-overlay').style.display = 'flex';
@@ -598,16 +615,21 @@
   }
 
   document.getElementById('confirm-ok').onclick = async () => {
-    const id = pendingDeleteId;
-    if (!id) return;
+    const order = pendingDeleteId;
+    if (!order) return;
     closeConfirm();
     const res = await fetch('/.netlify/functions/order-delete', {
       method: 'DELETE',
       headers: { 'Content-Type':'application/json', Authorization:`Bearer ${sessionStorage.getItem(AUTH_KEY)}` },
-      body: JSON.stringify({ id }),
+      body: JSON.stringify(order),
     });
     if (res.ok) {
-      allOrders = allOrders.filter(o => o.id !== id);
+      const matcher = order.fingerprint || '';
+      allOrders = allOrders.filter(o => {
+        if (order.id && o.id === order.id) return false;
+        if (matcher && o.fingerprint === matcher) return false;
+        return true;
+      });
       updateStats(); renderOrders();
     } else {
       alert('Gagal memadam. Cuba semula.');
