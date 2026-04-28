@@ -240,6 +240,8 @@
   .btn-edit:hover { background: var(--green-light); }
   .btn-del  { background: #fde8e8; color: var(--danger); }
   .btn-del:hover  { background: #fcc; }
+  .btn-resetnotif { background: #f3f4f6; color: #4b5563; }
+  .btn-resetnotif:hover { background: #e5e7eb; }
   .btn-save { background: var(--green-bright); color: white; }
   .btn-save:hover { background: var(--green-mid); }
   .btn-cancel { background: #e9ecef; color: #495057; }
@@ -794,6 +796,7 @@
           <div class="card-actions">
             <button class="btn btn-wa"   onclick="openWA('${eid}','bayar')">💰 Sahkan Bayaran</button>
             <button class="btn btn-war"  onclick="openWA('${eid}','peringat')">⏰ Peringatan</button>
+            ${(o.lastConfirmSentAt || o.lastReminderSentAt) ? `<button class="btn btn-resetnotif" onclick="resetNotificationStatus('${eid}')">↺ Reset Status</button>` : ''}
             <button class="btn btn-edit" onclick="startEdit('${eid}')">✏️ Edit</button>
             <button class="btn btn-del"  onclick="confirmDelete('${payload}','${esc(o.nama || 'rekod ini')}')">🗑️ Padam</button>
           </div>
@@ -866,6 +869,44 @@
       Object.assign(order, payload);
       renderOrders();
     }
+  }
+
+  async function resetNotificationStatus(id) {
+    const order = allOrders.find(x => x.id === id);
+    if (!order) return;
+
+    const res = await fetch('/.netlify/functions/order-update', {
+      method: 'PATCH',
+      headers: { 'Content-Type':'application/json', Authorization:`Bearer ${sessionStorage.getItem(AUTH_KEY)}` },
+      body: JSON.stringify({
+        id: order.id,
+        fingerprint: order.fingerprint || '',
+        original: {
+          nama: order.nama || '',
+          telefon: order.telefon || '',
+          jenis: order.jenis || '',
+          saiz: order.saiz || '',
+          kuantiti: order.kuantiti || 1,
+          jumlah: order.jumlah || 0,
+          tarikh: order.tarikh || '',
+          status_bayaran: order.status_bayaran || '',
+        },
+        lastConfirmSentAt: '',
+        lastReminderSentAt: '',
+        lastNotificationType: ''
+      }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      alert('Gagal reset status notifikasi: ' + (data.error || 'Cuba semula.'));
+      return;
+    }
+
+    order.lastConfirmSentAt = '';
+    order.lastReminderSentAt = '';
+    order.lastNotificationType = '';
+    renderOrders();
   }
 
   // === EDIT ===
