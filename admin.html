@@ -431,26 +431,6 @@
       </div>
     </div>
 
-    <div class="filter-bar">
-      <input class="search-input" id="search-box" type="text" placeholder="🔍 Cari nama / telefon..." oninput="renderOrders()">
-      <select class="sort-select" id="sort-order" onchange="renderOrders()">
-        <option value="newest">Tarikh Terkini</option>
-        <option value="oldest">Tarikh Terdahulu</option>
-        <option value="name-asc">Nama A-Z</option>
-        <option value="name-desc">Nama Z-A</option>
-        <option value="amount-desc">Jumlah Tertinggi</option>
-        <option value="amount-asc">Jumlah Terendah</option>
-      </select>
-      <button class="filter-btn active" onclick="setFilter('all',this)">Semua</button>
-      <button class="filter-btn" onclick="setFilter('CSS',this)">CSS</button>
-      <button class="filter-btn" onclick="setFilter('RNLS',this)">RNLS</button>
-      <button class="filter-btn" onclick="setFilter('RNSS',this)">RNSS</button>
-      <button class="filter-btn" onclick="setFilter('Muslimah',this)">Muslimah</button>
-    </div>
-    <div class="manual-summary" id="filter-help" style="margin-top:-4px;margin-bottom:16px;">
-      Statistik di atas memaparkan <strong>Semua kategori</strong> secara lalai. Klik kategori jenis baju untuk melihat statistik khusus bagi kategori tersebut.
-    </div>
-
     <div class="manual-card">
       <h3>➕ Tambah Pesanan Manual</h3>
       <p>Gunakan borang ini jika admin mahu memasukkan pesanan terus tanpa melalui borang pelanggan.</p>
@@ -515,6 +495,27 @@
         <div class="header-actions">
           <button class="export-btn" onclick="printOrders()">🖨 Cetak Senarai</button>
           <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
+        </div>
+      </div>
+      <div style="padding:14px 18px 0;">
+        <div class="filter-bar" style="margin-bottom:12px;">
+          <input class="search-input" id="search-box" type="text" placeholder="🔍 Cari nama / telefon..." oninput="renderOrders()">
+          <select class="sort-select" id="sort-order" onchange="renderOrders()">
+            <option value="newest">Tarikh Terkini</option>
+            <option value="oldest">Tarikh Terdahulu</option>
+            <option value="name-asc">Nama A-Z</option>
+            <option value="name-desc">Nama Z-A</option>
+            <option value="amount-desc">Jumlah Tertinggi</option>
+            <option value="amount-asc">Jumlah Terendah</option>
+          </select>
+          <button class="filter-btn active" onclick="setFilter('all',this)">Semua</button>
+          <button class="filter-btn" onclick="setFilter('CSS',this)">CSS</button>
+          <button class="filter-btn" onclick="setFilter('RNLS',this)">RNLS</button>
+          <button class="filter-btn" onclick="setFilter('RNSS',this)">RNSS</button>
+          <button class="filter-btn" onclick="setFilter('Muslimah',this)">Muslimah</button>
+        </div>
+        <div class="manual-summary" id="filter-help" style="margin-top:0;margin-bottom:14px;">
+          Statistik di atas memaparkan <strong>Semua kategori</strong> secara lalai. Klik kategori jenis baju untuk melihat statistik khusus bagi kategori tersebut.
         </div>
       </div>
       <div id="orders-container">
