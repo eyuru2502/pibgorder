@@ -15,7 +15,7 @@ export default async (request) => {
   }
 
   try {
-    const store = getStore('orders');
+    const store = getStore('pibg-orders');
     const { blobs } = await store.list();
 
     const orders = await Promise.all(

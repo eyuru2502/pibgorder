@@ -20,7 +20,7 @@ export default async (request) => {
   }
 
   try {
-    const store = getStore('orders');
+    const store = getStore('pibg-orders');
     const key = `order-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     await store.setJSON(key, { ...order, id: key });
 
