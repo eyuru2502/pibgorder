@@ -447,6 +447,9 @@
       <button class="filter-btn" onclick="setFilter('RNSS',this)">RNSS</button>
       <button class="filter-btn" onclick="setFilter('Muslimah',this)">Muslimah</button>
     </div>
+    <div class="manual-summary" id="filter-help" style="margin-top:-4px;margin-bottom:16px;">
+      Statistik di atas memaparkan <strong>Semua kategori</strong> secara lalai. Klik kategori jenis baju untuk melihat statistik khusus bagi kategori tersebut.
+    </div>
 
     <div class="manual-card">
       <h3>➕ Tambah Pesanan Manual</h3>
@@ -665,9 +668,18 @@
     return currentFilter === 'all' ? 'Semua kategori' : `Kategori ${currentFilter}`;
   }
 
+  function updateFilterHelp() {
+    const help = document.getElementById('filter-help');
+    if (!help) return;
+    if (currentFilter === 'all') {
+      help.innerHTML = 'Statistik di atas memaparkan <strong>Semua kategori</strong> secara lalai. Klik kategori jenis baju untuk melihat statistik khusus bagi kategori tersebut.';
+      return;
+    }
+    help.innerHTML = `Statistik di atas kini memaparkan <strong>${currentFilter}</strong>. Klik <strong>Semua</strong> untuk kembali melihat ringkasan keseluruhan pesanan.`;
+  }
+
   // === STATS ===
-  function updateStats() {
-    const scopedOrders = getScopedOrders();
+  function updateStats(scopedOrders = getScopedOrders()) {
     const paid = scopedOrders.filter(o => o.status_bayaran === 'diterima');
     document.getElementById('stat-total').textContent    = scopedOrders.length;
     document.getElementById('stat-qty').textContent      = scopedOrders.reduce((a,o) => a+(o.kuantiti||0), 0);
@@ -675,6 +687,7 @@
     document.getElementById('stat-bil-bayar').textContent = paid.length;
     document.getElementById('stat-bayaran').textContent  = 'RM ' + paid.reduce((a,o) => a+(o.jumlah||0), 0);
     document.getElementById('stat-scope').textContent = getScopeLabel();
+    updateFilterHelp();
     const days = Math.max(0, Math.ceil((new Date('2026-05-08') - new Date()) / 86400000));
     document.getElementById('stat-pending').textContent  = days;
   }
@@ -684,7 +697,6 @@
     currentFilter = f;
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
-    updateStats();
     renderOrders();
   }
 
@@ -779,11 +791,12 @@
 
   // === RENDER ===
   function renderOrders() {
+    const scopedOrders = getScopedOrders();
+    updateStats(scopedOrders);
     const q = document.getElementById('search-box').value.toLowerCase();
-    const filtered = sortOrders(allOrders.filter(o => {
-      const mf = currentFilter === 'all' || o.jenis === currentFilter;
+    const filtered = sortOrders(scopedOrders.filter(o => {
       const ms = !q || o.nama?.toLowerCase().includes(q) || o.telefon?.includes(q);
-      return mf && ms;
+      return ms;
     }));
 
     if (!filtered.length) {
