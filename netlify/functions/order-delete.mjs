@@ -1,4 +1,6 @@
 import { getStore } from '@netlify/blobs';
+import { isAdminRequest } from './_lib/auth.mjs';
+import { enforceRateLimit, json } from './_lib/security.mjs';
 
 function buildFingerprint(order = {}) {
   return [
@@ -14,30 +16,26 @@ function buildFingerprint(order = {}) {
 }
 
 export default async (request) => {
-  const headers = { 'Content-Type': 'application/json' };
-
   if (request.method !== 'DELETE') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers });
+    return json({ error: 'Method not allowed' }, 405);
   }
 
-  const auth = request.headers.get('authorization') || '';
-  const token = auth.replace(/^Bearer\s+/i, '');
-  const expected = process.env.AUTH_TOKEN;
-  if (!expected || token !== expected) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers });
+  if (!isAdminRequest(request)) {
+    return json({ error: 'Unauthorized' }, 401);
   }
+
+  const limited = await enforceRateLimit(request, { scope: 'order-delete', limit: 80, windowMs: 10 * 60 * 1000 });
+  if (!limited.ok) return limited.response;
 
   let body;
   try {
     body = await request.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers });
+    return json({ error: 'Format data tidak sah.' }, 400);
   }
 
   try {
     const store = getStore('pibg-orders');
-    const { blobs } = await store.list();
-
     let targetKey = body.id ? String(body.id) : '';
     if (targetKey) {
       const direct = await store.get(targetKey, { type: 'json' });
@@ -45,6 +43,7 @@ export default async (request) => {
     }
 
     if (!targetKey) {
+      const { blobs } = await store.list();
       const fingerprint = body.fingerprint || buildFingerprint(body);
       for (const blob of blobs) {
         const existing = await store.get(blob.key, { type: 'json' });
@@ -58,12 +57,12 @@ export default async (request) => {
     }
 
     if (!targetKey) {
-      return new Response(JSON.stringify({ error: 'Pesanan tidak dijumpai' }), { status: 404, headers });
+      return json({ error: 'Pesanan tidak dijumpai' }, 404);
     }
 
     await store.delete(targetKey);
-    return new Response(JSON.stringify({ success: true }), { status: 200, headers });
-  } catch (err) {
-    return new Response(JSON.stringify({ error: 'Gagal padam', detail: err.message }), { status: 500, headers });
+    return json({ success: true }, 200);
+  } catch {
+    return json({ error: 'Gagal padam pesanan.' }, 500);
   }
 };

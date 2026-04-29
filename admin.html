@@ -526,7 +526,6 @@
 </div>
 
 <script>
-  const AUTH_KEY = 'pibg_admin_token';
   const SAIZ  = ['XS','S','M','L','XL','XXL','3XL','4XL'];
   const JENIS = ['CSS','RNLS','RNSS','Muslimah'];
   const PRICE_MAP = { CSS: 45, RNLS: 47, RNSS: 44, Muslimah: 50 };
@@ -541,6 +540,11 @@
   let pendingDeleteId = null;
 
   // === AUTH ===
+  function showLoginPage() {
+    document.getElementById('dashboard-page').style.display = 'none';
+    document.getElementById('login-page').style.display = 'flex';
+  }
+
   async function doLogin() {
     const u = document.getElementById('username').value.trim();
     const p = document.getElementById('password').value;
@@ -549,11 +553,11 @@
       const res = await fetch('/.netlify/functions/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ username: u, password: p }),
       });
       if (!res.ok) return showLoginErr();
-      const data = await res.json();
-      sessionStorage.setItem(AUTH_KEY, data.token);
+      document.getElementById('login-err').style.display = 'none';
       showDashboard();
     } catch {
       showLoginErr();
@@ -564,10 +568,11 @@
     document.getElementById('login-err').style.display = 'block';
   }
 
-  function doLogout() {
-    sessionStorage.removeItem(AUTH_KEY);
-    document.getElementById('dashboard-page').style.display = 'none';
-    document.getElementById('login-page').style.display = 'flex';
+  async function doLogout() {
+    try {
+      await fetch('/.netlify/functions/login', { method: 'DELETE', credentials: 'include' });
+    } catch {}
+    showLoginPage();
   }
 
   function showDashboard() {
@@ -577,16 +582,29 @@
     loadOrders();
   }
 
-  if (sessionStorage.getItem(AUTH_KEY)) showDashboard();
+  async function initAuth() {
+    try {
+      const res = await fetch('/.netlify/functions/login', { credentials: 'include' });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.authenticated) {
+        showDashboard();
+      } else {
+        showLoginPage();
+      }
+    } catch {
+      showLoginPage();
+    }
+  }
+
+  initAuth();
 
   // === DATA ===
   async function loadOrders() {
     document.getElementById('orders-container').innerHTML =
       '<div class="loading"><div class="spinner"></div>Memuatkan data...</div>';
     try {
-      const token = sessionStorage.getItem(AUTH_KEY);
       const res = await fetch('/.netlify/functions/orders', {
-        headers: { Authorization: `Bearer ${token || ''}` },
+        credentials: 'include',
       });
       if (res.status === 401) { doLogout(); return; }
       const data = await res.json();
@@ -756,6 +774,7 @@
 
     const res = await fetch('/.netlify/functions/order', {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(order),
     });
@@ -921,9 +940,11 @@
     const newStatus = cur === 'diterima' ? 'belum' : 'diterima';
     const res = await fetch('/.netlify/functions/order-update', {
       method: 'PATCH',
-      headers: { 'Content-Type':'application/json', Authorization:`Bearer ${sessionStorage.getItem(AUTH_KEY)}` },
+      credentials: 'include',
+      headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({ id, status_bayaran: newStatus }),
     });
+    if (res.status === 401) { doLogout(); return; }
     if (res.ok) {
       const o = allOrders.find(x => x.id === id);
       if (o) o.status_bayaran = newStatus;
@@ -955,7 +976,8 @@
 
     const res = await fetch('/.netlify/functions/order-update', {
       method: 'PATCH',
-      headers: { 'Content-Type':'application/json', Authorization:`Bearer ${sessionStorage.getItem(AUTH_KEY)}` },
+      credentials: 'include',
+      headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({
         id: order.id,
         fingerprint: order.fingerprint || '',
@@ -972,6 +994,7 @@
         ...payload
       }),
     });
+    if (res.status === 401) { doLogout(); return; }
 
     if (res.ok) {
       Object.assign(order, payload);
@@ -985,7 +1008,8 @@
 
     const res = await fetch('/.netlify/functions/order-update', {
       method: 'PATCH',
-      headers: { 'Content-Type':'application/json', Authorization:`Bearer ${sessionStorage.getItem(AUTH_KEY)}` },
+      credentials: 'include',
+      headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({
         id: order.id,
         fingerprint: order.fingerprint || '',
@@ -1004,6 +1028,7 @@
         lastNotificationType: ''
       }),
     });
+    if (res.status === 401) { doLogout(); return; }
 
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -1057,7 +1082,8 @@
     };
     const res = await fetch('/.netlify/functions/order-update', {
       method: 'PATCH',
-      headers: { 'Content-Type':'application/json', Authorization:`Bearer ${sessionStorage.getItem(AUTH_KEY)}` },
+      credentials: 'include',
+      headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({
         id,
         fingerprint: current.fingerprint || '',
@@ -1076,6 +1102,7 @@
         ...updates
       }),
     });
+    if (res.status === 401) { doLogout(); return; }
     const data = await res.json().catch(() => ({}));
     if (res.ok) {
       const o = allOrders.find(x => x.id === id);
@@ -1109,9 +1136,11 @@
     closeConfirm();
     const res = await fetch('/.netlify/functions/order-delete', {
       method: 'DELETE',
-      headers: { 'Content-Type':'application/json', Authorization:`Bearer ${sessionStorage.getItem(AUTH_KEY)}` },
+      credentials: 'include',
+      headers: { 'Content-Type':'application/json' },
       body: JSON.stringify(order),
     });
+    if (res.status === 401) { doLogout(); return; }
     if (res.ok) {
       const matcher = order.fingerprint || '';
       allOrders = allOrders.filter(o => {

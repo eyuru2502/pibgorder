@@ -1,4 +1,7 @@
 import { getStore } from '@netlify/blobs';
+import { isAdminRequest } from './_lib/auth.mjs';
+import { enforceRateLimit, json } from './_lib/security.mjs';
+import { sanitizePublicOrder } from './_lib/validation.mjs';
 
 const PRICE_MAP = { CSS: 45, RNLS: 47, RNSS: 44, Muslimah: 50 };
 const SIZE_SURCHARGE = 5;
@@ -13,23 +16,25 @@ function getUnitPrice(jenis, saiz) {
 }
 
 export default async (request) => {
-  const headers = { 'Content-Type': 'application/json' };
-
   if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers });
+    return json({ error: 'Method not allowed' }, 405);
   }
 
-  let order;
+  const limited = await enforceRateLimit(request, { scope: 'order-create', limit: 15, windowMs: 10 * 60 * 1000 });
+  if (!limited.ok) return limited.response;
+
+  let input;
   try {
-    order = await request.json();
+    input = await request.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers });
+    return json({ error: 'Format data tidak sah.' }, 400);
   }
 
-  const { nama, telefon, jenis, saiz, kuantiti } = order;
-  if (!nama || !telefon || !jenis || !saiz || !kuantiti) {
-    return new Response(JSON.stringify({ error: 'Medan wajib tidak lengkap' }), { status: 400, headers });
-  }
+  const sanitized = sanitizePublicOrder(input, { isAdmin: isAdminRequest(request) });
+  if (!sanitized.ok) return json({ error: sanitized.error }, 400);
+
+  const order = sanitized.value;
+  const { jenis, saiz, kuantiti } = order;
 
   try {
     const store = getStore('pibg-orders');
@@ -41,13 +46,14 @@ export default async (request) => {
       ...order,
       harga,
       jumlah,
+      tarikh: new Date(createdAtMs).toLocaleString('ms-MY', { timeZone: 'Asia/Kuala_Lumpur' }),
       id: key,
       createdAtMs,
       createdAtIso: new Date(createdAtMs).toISOString(),
     });
 
-    return new Response(JSON.stringify({ success: true, id: key }), { status: 200, headers });
-  } catch (err) {
-    return new Response(JSON.stringify({ error: 'Gagal simpan pesanan', detail: err.message }), { status: 500, headers });
+    return json({ success: true, id: key }, 200);
+  } catch {
+    return json({ error: 'Gagal simpan pesanan.' }, 500);
   }
 };

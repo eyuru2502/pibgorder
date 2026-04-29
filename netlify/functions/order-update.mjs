@@ -1,4 +1,7 @@
 import { getStore } from '@netlify/blobs';
+import { isAdminRequest } from './_lib/auth.mjs';
+import { enforceRateLimit, json } from './_lib/security.mjs';
+import { sanitizeOrderUpdates } from './_lib/validation.mjs';
 
 const PRICE_MAP = { CSS: 45, RNLS: 47, RNSS: 44, Muslimah: 50 };
 const SIZE_SURCHARGE = 5;
@@ -26,34 +29,38 @@ function buildFingerprint(order = {}) {
 }
 
 export default async (request) => {
-  const headers = { 'Content-Type': 'application/json' };
-
   if (request.method !== 'PATCH') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers });
+    return json({ error: 'Method not allowed' }, 405);
   }
 
-  const auth = request.headers.get('authorization') || '';
-  const token = auth.replace(/^Bearer\s+/i, '');
-  const expected = process.env.AUTH_TOKEN;
-  if (!expected || token !== expected) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers });
+  if (!isAdminRequest(request)) {
+    return json({ error: 'Unauthorized' }, 401);
   }
+
+  const limited = await enforceRateLimit(request, { scope: 'order-update', limit: 120, windowMs: 10 * 60 * 1000 });
+  if (!limited.ok) return limited.response;
 
   let body;
   try {
     body = await request.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers });
+    return json({ error: 'Format data tidak sah.' }, 400);
   }
 
-  const { id, fingerprint, original, ...updates } = body;
+  const { id, fingerprint, original, ...rawUpdates } = body;
+  const sanitized = sanitizeOrderUpdates(rawUpdates);
+  if (!sanitized.ok) return json({ error: sanitized.error }, 400);
+  const updates = sanitized.value;
 
   try {
     const store = getStore('pibg-orders');
     let targetKey = id ? String(id) : '';
     let existing = targetKey ? await store.get(targetKey, { type: 'json' }) : null;
+    if (targetKey && !existing) {
+      targetKey = '';
+    }
 
-    if (!existing) {
+    if (!existing && !targetKey) {
       const { blobs } = await store.list();
       const matcher = fingerprint || buildFingerprint(original || body);
       for (const blob of blobs) {
@@ -69,7 +76,7 @@ export default async (request) => {
     }
 
     if (!existing) {
-      return new Response(JSON.stringify({ error: 'Pesanan tidak dijumpai' }), { status: 404, headers });
+      return json({ error: 'Pesanan tidak dijumpai' }, 404);
     }
     const nextOrder = {
       ...existing,
@@ -83,8 +90,8 @@ export default async (request) => {
       nextOrder.jumlah = nextOrder.harga * Math.max(1, Number(nextOrder.kuantiti || 1));
     }
     await store.setJSON(targetKey, nextOrder);
-    return new Response(JSON.stringify({ success: true }), { status: 200, headers });
-  } catch (err) {
-    return new Response(JSON.stringify({ error: 'Gagal kemaskini', detail: err.message }), { status: 500, headers });
+    return json({ success: true }, 200);
+  } catch {
+    return json({ error: 'Gagal kemaskini pesanan.' }, 500);
   }
 };

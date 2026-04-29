@@ -1,4 +1,6 @@
 import { getStore } from '@netlify/blobs';
+import { isAdminRequest } from './_lib/auth.mjs';
+import { json } from './_lib/security.mjs';
 
 const PRICE_MAP = { CSS: 45, RNLS: 47, RNSS: 44, Muslimah: 50 };
 const SIZE_SURCHARGE = 5;
@@ -64,17 +66,12 @@ function extractCreatedAtMs(order = {}) {
 }
 
 export default async (request) => {
-  const headers = { 'Content-Type': 'application/json' };
-
   if (request.method !== 'GET') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers });
+    return json({ error: 'Method not allowed' }, 405);
   }
 
-  const auth = request.headers.get('authorization') || '';
-  const token = auth.replace(/^Bearer\s+/i, '');
-  const expected = process.env.AUTH_TOKEN;
-  if (!expected || token !== expected) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers });
+  if (!isAdminRequest(request)) {
+    return json({ error: 'Unauthorized' }, 401);
   }
 
   try {
@@ -102,8 +99,8 @@ export default async (request) => {
       return extractCreatedAtMs(b) - extractCreatedAtMs(a);
     });
 
-    return new Response(JSON.stringify({ orders: orders.filter(Boolean) }), { status: 200, headers });
-  } catch (err) {
-    return new Response(JSON.stringify({ error: 'Gagal muatkan pesanan', detail: err.message }), { status: 500, headers });
+    return json({ orders: orders.filter(Boolean) }, 200);
+  } catch {
+    return json({ error: 'Gagal muatkan pesanan.' }, 500);
   }
 };
