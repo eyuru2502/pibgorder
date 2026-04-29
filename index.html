@@ -414,10 +414,16 @@
 </div>
 
 <script>
+  const APP_TIMEZONE = 'Asia/Kuala_Lumpur';
+  const DEADLINE_ISO = '2026-05-08T23:59:59+08:00';
+
+  function getDeadlineDate() {
+    return new Date(DEADLINE_ISO);
+  }
 
   // ===== DEADLINE CHECK =====
   (function() {
-    var DEADLINE = new Date('2026-05-08T23:59:59+08:00');
+    var DEADLINE = getDeadlineDate();
     var now = new Date();
     if (now > DEADLINE) {
       // Show closed notice immediately on page load
@@ -443,7 +449,7 @@
   function updateCountdownDays() {
     const el = document.getElementById('countdown-days');
     if (!el) return;
-    const deadline = new Date('2026-05-08T23:59:59+08:00');
+    const deadline = getDeadlineDate();
     const now = new Date();
     const daysLeft = Math.max(0, Math.ceil((deadline - now) / 86400000));
     el.classList.remove('is-urgent', 'is-closed');
@@ -459,6 +465,7 @@
   }
 
   updateCountdownDays();
+  setInterval(updateCountdownDays, 60000);
 
   const SIZE_SURCHARGE = 5;
   const SURCHARGE_SIZES = ['3XL', '4XL'];
@@ -513,7 +520,7 @@
   }
 
   async function submitOrder() {
-    var DEADLINE = new Date('2026-05-08T23:59:59+08:00');
+    var DEADLINE = getDeadlineDate();
     if (new Date() > DEADLINE) { showClosedToast(); return; }
     const nama = document.getElementById('nama').value.trim();
     const telefon = document.getElementById('telefon').value.trim();
@@ -528,7 +535,7 @@
 
     const unitPrice = getUnitPrice(selectedPrice, selectedSize);
     const totalPrice = getOrderTotal(selectedPrice, selectedSize, qty);
-    const order = { nama, telefon, catatan, jenis: selectedType, harga: unitPrice, saiz: selectedSize, kuantiti: qty, jumlah: totalPrice, tarikh: new Date().toLocaleString('ms-MY', { timeZone: 'Asia/Kuala_Lumpur' }) };
+    const order = { nama, telefon, catatan, jenis: selectedType, harga: unitPrice, saiz: selectedSize, kuantiti: qty, jumlah: totalPrice, tarikh: new Date().toLocaleString('ms-MY', { timeZone: APP_TIMEZONE }) };
 
     try {
       const res = await fetch('/.netlify/functions/order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(order) });
