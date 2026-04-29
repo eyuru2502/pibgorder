@@ -80,6 +80,9 @@ export function sanitizeOrderUpdates(input = {}) {
     if (!tarikh) return { ok: false, error: 'Tarikh tidak sah.' };
     updates.tarikh = tarikh;
   }
+  if (hasOwn('catatan')) {
+    updates.catatan = cleanText(input.catatan, 240);
+  }
   if (hasOwn('status_bayaran')) {
     const status = cleanText(input.status_bayaran, 20);
     if (!ALLOWED_PAYMENT_STATUS.has(status)) return { ok: false, error: 'Status bayaran tidak sah.' };

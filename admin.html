@@ -887,6 +887,10 @@
                   <option value="diterima"${isPaid?' selected':''}>Sudah Bayar</option>
                 </select>
               </div>
+              <div class="edit-field edit-full">
+                <label class="edit-label">Catatan</label>
+                <input class="edit-input" id="e-catatan" value="${esc(o.catatan||'')}">
+              </div>
             </div>
             <div class="edit-actions">
               <button class="btn btn-save"   onclick="saveEdit('${eid}')">💾 Simpan</button>
@@ -919,6 +923,9 @@
             <span>📅 ${esc(o.tarikh||'—')}</span>
             ${o.lastConfirmSentAt ? `<span>📨 Pengesahan: ${esc(o.lastConfirmSentAt)}</span>` : ''}
             ${o.lastReminderSentAt ? `<span>🔔 Peringatan: ${esc(o.lastReminderSentAt)}</span>` : ''}
+          </div>
+          <div class="card-row2" style="padding-top:2px;">
+            <span>📝 Catatan: <strong>${esc(o.catatan || '—')}</strong></span>
           </div>
           <div class="card-actions">
             <button class="btn btn-wa"   onclick="openWA('${eid}','bayar')">💰 Sahkan Bayaran</button>
@@ -1078,6 +1085,7 @@
       harga:          getUnitPrice(jenis, saiz),
       jumlah:         getOrderTotal(jenis, saiz, kuantiti),
       tarikh:         document.getElementById('e-tarikh').value.trim(),
+      catatan:        document.getElementById('e-catatan').value.trim(),
       status_bayaran: document.getElementById('e-status').value,
     };
     const res = await fetch('/.netlify/functions/order-update', {
@@ -1097,6 +1105,7 @@
           kuantiti: current.kuantiti || 1,
           jumlah: current.jumlah || 0,
           tarikh: current.tarikh || '',
+          catatan: current.catatan || '',
           status_bayaran: current.status_bayaran || '',
         },
         ...updates
